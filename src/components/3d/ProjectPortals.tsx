@@ -148,7 +148,6 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
           color="#00FEFE"
           anchorX="center"
           anchorY="middle"
-          font="/fonts/inter-bold.woff"
         >
           {project.title}
         </Text>

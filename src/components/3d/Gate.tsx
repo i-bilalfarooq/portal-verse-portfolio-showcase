@@ -149,7 +149,6 @@ const Gate = ({ onOpen }: GateProps) => {
           color="#00FEFE"
           anchorX="center"
           anchorY="middle"
-          font="/fonts/inter-bold.woff"
         >
           PORTFOLIO GATE
         </Text>
@@ -159,7 +158,6 @@ const Gate = ({ onOpen }: GateProps) => {
           color="#FF00FF"
           anchorX="center"
           anchorY="middle"
-          font="/fonts/inter-medium.woff"
         >
           Click to Enter
         </Text>

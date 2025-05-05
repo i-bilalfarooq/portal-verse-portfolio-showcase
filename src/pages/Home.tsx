@@ -3,7 +3,6 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { gsap } from 'gsap';
-import { NavigationMenu } from '@/components/ui/navigation-menu';
 import { useNavigate } from 'react-router-dom';
 import Gate from '@/components/3d/Gate';
 import Lobby from '@/components/3d/Lobby';
