@@ -20,7 +20,7 @@ const projects: Project[] = [
     title: 'HTMLLab',
     description: 'An AI-Based HTML and CSS Generator that reduces development time by 40% through AI-powered code generation.',
     technologies: ['AI', 'React', 'Node.js', 'OpenAI API'],
-    image: 'placeholder.svg',
+    image: 'lovable-uploads/79b3a268-53ea-413d-806c-3e7dcb0f6f8e.png',
     link: 'https://htmllab.run.place/'
   },
   {
@@ -28,7 +28,7 @@ const projects: Project[] = [
     title: 'Waqt',
     description: 'An E-Commerce Website built for a watch brand, featuring modern design and seamless shopping experience.',
     technologies: ['React', 'Node.js', 'MongoDB', 'Stripe API'],
-    image: 'placeholder.svg',
+    image: 'lovable-uploads/3c7b4681-4979-42ff-8cac-1afde195b6ed.png',
     link: 'https://waqt.publicvm.com/'
   },
   {
@@ -36,7 +36,7 @@ const projects: Project[] = [
     title: 'DataSouk',
     description: 'A Blockchain-Based B2B Data Sharing Platform where data is encrypted using Kyber and Dilithium for post-quantum security.',
     technologies: ['Blockchain', 'React', 'Node.js', 'Kyber', 'Dilithium'],
-    image: 'placeholder.svg',
+    image: 'lovable-uploads/21af87d5-7891-4541-a3f0-af9ebc2f516e.png',
     link: 'https://datasouk.great-site.net/?i=1'
   }
 ];
@@ -67,7 +67,7 @@ const Work = () => {
             <img 
               src={project.image} 
               alt={project.title} 
-              className="w-full h-48 object-cover bg-gray-700"
+              className="w-full h-48 object-cover"
             />
             <div className="p-4">
               <h3 className="text-xl font-bold text-white mb-2">{project.title}</h3>
