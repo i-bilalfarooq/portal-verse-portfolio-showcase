@@ -20,36 +20,16 @@ const manifestoItems: ManifestoItem[] = [
     content: "The best digital products are those that solve real problems for real people. I prioritize understanding user needs and creating experiences that are intuitive, accessible, and delightful."
   },
   {
-    title: "Artificial Intelligence",
-    content: "AI is revolutionizing how we build and interact with technology. I'm passionate about leveraging machine learning, natural language processing, and other AI technologies to create intelligent systems that enhance human capabilities rather than replace them. From AI-powered code generation to smart user interfaces, I believe in the responsible implementation of AI to solve complex problems efficiently. I've worked on projects like HTMLLab that demonstrate how AI can accelerate the development process while maintaining quality and creativity."
-  },
-  {
-    title: "Machine Learning",
-    content: "Machine Learning enables systems to learn and improve from experience without explicit programming. I'm fascinated by the potential of ML algorithms to analyze data, recognize patterns, and make predictions that can transform industries. Whether it's implementing recommendation systems, predictive analytics, or computer vision solutions, I approach ML with a focus on practical applications that deliver real business value while respecting ethical considerations around bias and transparency."
-  },
-  {
-    title: "Blockchain & Web3",
-    content: "Blockchain technology offers unprecedented opportunities for creating decentralized, transparent, and secure systems. I'm committed to exploring and implementing blockchain solutions that provide real value, from smart contracts to decentralized applications. I'm particularly interested in post-quantum cryptography solutions like Kyber and Dilithium to ensure long-term security in the quantum computing era. My work on DataSouk demonstrates how blockchain can enable secure B2B data sharing without compromising privacy or security."
-  },
-  {
-    title: "Frontend Excellence",
-    content: "The frontend is where users directly interact with technology. I strive for pixel-perfect, responsive designs that work flawlessly across all devices. I'm skilled in modern frontend frameworks like React, and I'm constantly refining my understanding of UI/UX principles to create interfaces that are both beautiful and functional. Performance optimization is a key focus in all my frontend work, ensuring that applications load quickly and run smoothly even on slower connections or devices."
-  },
-  {
-    title: "Backend Robustness",
-    content: "A solid backend is the foundation of any successful application. I design scalable, secure, and efficient backend systems using Node.js, Express, and various database technologies. I emphasize clean architecture, comprehensive testing, and well-documented APIs to ensure maintainability and extensibility over time. My backend systems are built with security in mind from the ground up, implementing best practices for authentication, authorization, and data protection."
-  },
-  {
     title: "Continuous Learning",
-    content: "Technology evolves rapidly, and so should we. I commit to continuous learning, exploring new frameworks, methodologies, and best practices to deliver cutting-edge solutions. I stay up-to-date with the latest developments in web technologies, cloud services, and development tools to ensure that my skills remain relevant and valuable."
+    content: "Technology evolves rapidly, and so should we. I commit to continuous learning, exploring new frameworks, methodologies, and best practices to deliver cutting-edge solutions."
   },
   {
     title: "Quality Over Quantity",
-    content: "I believe in doing fewer things better. Each project receives my full attention and commitment to excellence, from concept to execution. I prioritize quality, reliability, and user satisfaction over delivering quick but subpar solutions."
+    content: "I believe in doing fewer things better. Each project receives my full attention and commitment to excellence, from concept to execution."
   },
   {
     title: "Collaborative Spirit",
-    content: "Great ideas emerge from collaboration. I value open communication, diverse perspectives, and collective problem-solving to achieve the best possible outcomes. I approach every project with a team mindset, recognizing that the best results come from combining different skills, experiences, and viewpoints."
+    content: "Great ideas emerge from collaboration. I value open communication, diverse perspectives, and collective problem-solving to achieve the best possible outcomes."
   }
 ];
 
