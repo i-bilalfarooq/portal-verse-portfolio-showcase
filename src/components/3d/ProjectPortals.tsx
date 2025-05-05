@@ -49,18 +49,17 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
   const texture = useTexture(project.image);
   
   useEffect(() => {
-    // Entry animation
+    // Entry animation - start from above and animate down
     if (portalRef.current) {
-      // Start from above and animate down
-      portalRef.current.position.y = 5;
+      portalRef.current.position.y = 10;
       gsap.to(portalRef.current.position, {
-        y: 0,
+        y: project.position[1],
         duration: 1.5,
         delay: animationDelay,
         ease: "elastic.out(1, 0.75)"
       });
     }
-  }, [animationDelay]);
+  }, [animationDelay, project.position]);
   
   useFrame(({ clock }) => {
     if (sphereRef.current) {
@@ -71,7 +70,7 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
       if (hovered && !expanded) {
         sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
           sphereRef.current.scale.x,
-          1.15,
+          1.3,
           0.1
         ));
       } else if (!expanded) {
@@ -113,7 +112,7 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
   return (
     <group
       ref={portalRef}
-      position={project.position}
+      position={[project.position[0], project.position[1], project.position[2]]}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       onClick={handleClick}
@@ -127,6 +126,7 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
           roughness={0.2} 
           emissive={project.color} 
           emissiveIntensity={hovered ? 0.8 : 0.3}
+          map={texture}
         />
         
         {/* Orbit rings */}

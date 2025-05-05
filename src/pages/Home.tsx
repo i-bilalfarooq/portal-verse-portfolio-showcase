@@ -28,6 +28,11 @@ const Home = () => {
   }, []);
   
   const handleOpenGate = () => {
+    // Disable controls during transition
+    if (controlsRef.current) {
+      controlsRef.current.enabled = false;
+    }
+    
     // Animate camera movement through the gate
     if (cameraRef.current) {
       gsap.to(cameraRef.current.position, {
