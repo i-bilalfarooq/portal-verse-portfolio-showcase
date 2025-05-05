@@ -20,6 +20,22 @@ const manifestoItems: ManifestoItem[] = [
     content: "The best digital products are those that solve real problems for real people. I prioritize understanding user needs and creating experiences that are intuitive, accessible, and delightful."
   },
   {
+    title: "Artificial Intelligence",
+    content: "AI is revolutionizing how we build and interact with technology. I'm passionate about leveraging machine learning, natural language processing, and other AI technologies to create intelligent systems that enhance human capabilities rather than replace them. From AI-powered code generation to smart user interfaces, I believe in the responsible implementation of AI to solve complex problems efficiently."
+  },
+  {
+    title: "Blockchain & Web3",
+    content: "Blockchain technology offers unprecedented opportunities for creating decentralized, transparent, and secure systems. I'm committed to exploring and implementing blockchain solutions that provide real value, from smart contracts to decentralized applications. I'm particularly interested in post-quantum cryptography solutions like Kyber and Dilithium to ensure long-term security in the quantum computing era."
+  },
+  {
+    title: "Frontend Excellence",
+    content: "The frontend is where users directly interact with technology. I strive for pixel-perfect, responsive designs that work flawlessly across all devices. I'm skilled in modern frontend frameworks like React, and I'm constantly refining my understanding of UI/UX principles to create interfaces that are both beautiful and functional. Performance optimization is a key focus in all my frontend work."
+  },
+  {
+    title: "Backend Robustness",
+    content: "A solid backend is the foundation of any successful application. I design scalable, secure, and efficient backend systems using Node.js, Express, and various database technologies. I emphasize clean architecture, comprehensive testing, and well-documented APIs to ensure maintainability and extensibility over time."
+  },
+  {
     title: "Continuous Learning",
     content: "Technology evolves rapidly, and so should we. I commit to continuous learning, exploring new frameworks, methodologies, and best practices to deliver cutting-edge solutions."
   },

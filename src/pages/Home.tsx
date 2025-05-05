@@ -1,12 +1,11 @@
 
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { gsap } from 'gsap';
-import { Button } from '@/components/ui/button';
 import { NavigationMenu } from '@/components/ui/navigation-menu';
 import { useNavigate } from 'react-router-dom';
-import GateEntrance from '@/components/3d/GateEntrance';
+import Gate from '@/components/3d/Gate';
 import Lobby from '@/components/3d/Lobby';
 import ProjectPortals from '@/components/3d/ProjectPortals';
 import Loading from '@/components/Loading';
@@ -14,7 +13,8 @@ import Loading from '@/components/Loading';
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [gateOpened, setGateOpened] = useState(false);
-  const cameraRef = useRef();
+  const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+  const controlsRef = useRef<any>(null);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -27,8 +27,29 @@ const Home = () => {
   }, []);
   
   const handleOpenGate = () => {
-    setGateOpened(true);
-    // Gate animation will be handled in the GateEntrance component
+    // Animate camera movement through the gate
+    if (cameraRef.current) {
+      gsap.to(cameraRef.current.position, {
+        z: -2,
+        duration: 2,
+        ease: "power2.inOut",
+        onComplete: () => {
+          setGateOpened(true);
+          
+          // Reset camera position for lobby view
+          if (cameraRef.current) {
+            cameraRef.current.position.set(0, 0, 5);
+            
+            // Re-enable controls after camera is positioned
+            if (controlsRef.current) {
+              setTimeout(() => {
+                controlsRef.current.enabled = true;
+              }, 100);
+            }
+          }
+        }
+      });
+    }
   };
   
   if (isLoading) {
@@ -42,33 +63,31 @@ const Home = () => {
         <directionalLight position={[0, 10, 5]} intensity={1} castShadow />
         <Suspense fallback={null}>
           {!gateOpened ? (
-            <GateEntrance onOpen={handleOpenGate} />
+            <Gate onOpen={handleOpenGate} />
           ) : (
             <>
               <Lobby />
               <ProjectPortals />
               <OrbitControls 
+                ref={controlsRef}
                 enableZoom={false} 
                 enablePan={false}
                 maxPolarAngle={Math.PI / 2}
                 minPolarAngle={Math.PI / 3}
+                rotateSpeed={0.5}
+                enableDamping
+                dampingFactor={0.1}
               />
             </>
           )}
         </Suspense>
-        <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={75} />
+        <PerspectiveCamera 
+          ref={cameraRef} 
+          makeDefault 
+          position={[0, 0, 5]} 
+          fov={75} 
+        />
       </Canvas>
-      
-      {!gateOpened && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Button 
-            className="bg-transparent border border-[#00FEFE] text-[#00FEFE] hover:bg-[#00FEFE]/10"
-            onClick={handleOpenGate}
-          >
-            Enter Portfolio
-          </Button>
-        </div>
-      )}
       
       {gateOpened && (
         <nav className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
