@@ -9,6 +9,7 @@ import Gate from '@/components/3d/Gate';
 import Lobby from '@/components/3d/Lobby';
 import ProjectPortals from '@/components/3d/ProjectPortals';
 import Loading from '@/components/Loading';
+import * as THREE from 'three';
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
