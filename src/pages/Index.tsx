@@ -1,12 +1,48 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-black text-white">
+      <Card className="max-w-2xl w-full p-8 bg-gray-800 border-gray-700 shadow-xl">
+        <div className="text-center space-y-6">
+          <h1 className="text-4xl font-bold mb-4">Bilal Farooq's Portfolio</h1>
+          <p className="text-xl text-gray-300">Welcome to my digital showcase of projects and skills</p>
+          
+          <div className="flex flex-col gap-4 mt-8">
+            <h2 className="text-2xl font-semibold">Featured Projects</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <ProjectCard 
+                title="HTMLLab" 
+                description="AI-Based HTML and CSS Generator" 
+              />
+              <ProjectCard 
+                title="Waqt" 
+                description="E-Commerce Website for a watch brand" 
+              />
+              <ProjectCard 
+                title="DataSouk" 
+                description="Blockchain-Based B2B Data Sharing Platform" 
+              />
+            </div>
+          </div>
+          
+          <Button className="mt-6">
+            Explore Projects <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+const ProjectCard = ({ title, description }: { title: string, description: string }) => {
+  return (
+    <div className="bg-gray-700 p-4 rounded-lg hover:bg-gray-600 transition-colors">
+      <h3 className="font-bold text-lg">{title}</h3>
+      <p className="text-gray-300 text-sm mt-2">{description}</p>
     </div>
   );
 };
