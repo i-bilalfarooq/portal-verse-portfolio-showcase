@@ -45,7 +45,6 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
   const portalRef = useRef<THREE.Group>(null);
   const sphereRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
-  const [expanded, setExpanded] = useState(false);
   const texture = useTexture(project.image);
   
   useEffect(() => {
@@ -67,13 +66,13 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
       sphereRef.current.rotation.y = clock.getElapsedTime() * 0.2;
       
       // Hover effect
-      if (hovered && !expanded) {
+      if (hovered) {
         sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
           sphereRef.current.scale.x,
           1.3,
           0.1
         ));
-      } else if (!expanded) {
+      } else {
         sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
           sphereRef.current.scale.x,
           1,
@@ -83,39 +82,12 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
     }
   });
   
-  const handleClick = () => {
-    setExpanded(!expanded);
-    
-    if (sphereRef.current) {
-      if (!expanded) {
-        // Expand
-        gsap.to(sphereRef.current.scale, {
-          x: 1.8,
-          y: 1.8,
-          z: 1.8,
-          duration: 0.5,
-          ease: "power2.out"
-        });
-      } else {
-        // Contract
-        gsap.to(sphereRef.current.scale, {
-          x: 1,
-          y: 1,
-          z: 1,
-          duration: 0.5,
-          ease: "power2.in"
-        });
-      }
-    }
-  };
-  
   return (
     <group
       ref={portalRef}
       position={[project.position[0], project.position[1], project.position[2]]}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
-      onClick={handleClick}
     >
       {/* Project portal sphere */}
       <mesh ref={sphereRef} castShadow>
@@ -140,23 +112,21 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
         </mesh>
       </mesh>
       
-      {/* Project name on hover */}
-      {hovered && !expanded && (
-        <Text
-          position={[0, 1.3, 0]}
-          fontSize={0.2}
-          color="#00FEFE"
-          anchorX="center"
-          anchorY="middle"
-        >
-          {project.title}
-        </Text>
-      )}
+      {/* Project name always visible */}
+      <Text
+        position={[0, 1.3, 0]}
+        fontSize={0.2}
+        color="#00FEFE"
+        anchorX="center"
+        anchorY="middle"
+      >
+        {project.title}
+      </Text>
       
-      {/* Project details on click */}
-      {expanded && (
+      {/* Project details on hover */}
+      {hovered && (
         <Html
-          position={[0, 1.5, 0]}
+          position={[0, 0, 0]}
           center
           distanceFactor={10}
           className="pointer-events-none"
@@ -164,24 +134,6 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
           <div className="w-96 bg-gray-900/90 backdrop-blur-md p-4 rounded-md border border-[#00FEFE] text-white">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-[#00FEFE]">{project.title}</h2>
-              <button 
-                className="bg-transparent text-white px-1 rounded hover:text-[#FF00FF] pointer-events-auto"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setExpanded(false);
-                  if (sphereRef.current) {
-                    gsap.to(sphereRef.current.scale, {
-                      x: 1,
-                      y: 1,
-                      z: 1,
-                      duration: 0.5,
-                      ease: "power2.in"
-                    });
-                  }
-                }}
-              >
-                ✕
-              </button>
             </div>
             <img 
               src={project.image} 

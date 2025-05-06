@@ -22,24 +22,29 @@ const Lobby = () => {
   }
   
   useEffect(() => {
-    // Initialize starting position - floor comes from below
+    // Start floor and platform from far away and animate them in
     if (floorRef.current) {
-      floorRef.current.position.y = -10;
+      floorRef.current.position.y = -30;
+      floorRef.current.position.z = 30;
+      
       gsap.to(floorRef.current.position, {
         y: -2,
-        duration: 1.5,
+        z: 0,
+        duration: 2,
         ease: "power2.out"
       });
     }
     
-    // Platform comes from below
+    // Platform comes from below and far away
     if (platformRef.current) {
-      platformRef.current.position.y = -10;
+      platformRef.current.position.y = -30;
+      platformRef.current.position.z = 30;
+      
       gsap.to(platformRef.current.position, {
         y: -1.5,
-        duration: 1.8,
-        delay: 0.2,
-        ease: "elastic.out(1, 0.75)"
+        z: 0,
+        duration: 2.3,
+        ease: "power2.out"
       });
     }
   }, []);

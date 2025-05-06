@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { gsap } from 'gsap';
@@ -16,6 +16,7 @@ gsap.registerPlugin();
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [gateOpened, setGateOpened] = useState(false);
+  const [showNavigation, setShowNavigation] = useState(false);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const Home = () => {
     
     // Animate camera movement through the gate
     if (cameraRef.current) {
+      // First stage: move through the gate
       gsap.to(cameraRef.current.position, {
         z: -2,
         duration: 2,
@@ -44,16 +46,32 @@ const Home = () => {
         onComplete: () => {
           setGateOpened(true);
           
-          // Reset camera position for lobby view
+          // Second stage: animate camera from far away to the lobby position
           if (cameraRef.current) {
-            cameraRef.current.position.set(0, 0, 5);
+            // Set camera to a position far away but looking at the lobby
+            cameraRef.current.position.set(0, 30, 30);
+            cameraRef.current.lookAt(0, 0, 0);
             
-            // Re-enable controls after camera is positioned
-            if (controlsRef.current) {
-              setTimeout(() => {
-                controlsRef.current.enabled = true;
-              }, 100);
-            }
+            // Animate camera moving in towards the lobby
+            gsap.to(cameraRef.current.position, {
+              y: 0,
+              z: 5,
+              duration: 2,
+              ease: "power2.inOut",
+              onComplete: () => {
+                // Show navigation bar with a slight delay
+                setTimeout(() => {
+                  setShowNavigation(true);
+                }, 300);
+                
+                // Re-enable controls after camera is positioned
+                if (controlsRef.current) {
+                  setTimeout(() => {
+                    controlsRef.current.enabled = true;
+                  }, 100);
+                }
+              }
+            });
           }
         }
       });
@@ -69,26 +87,24 @@ const Home = () => {
       <Canvas shadows>
         <ambientLight intensity={0.3} />
         <directionalLight position={[0, 10, 5]} intensity={1} castShadow />
-        <Suspense fallback={null}>
-          {!gateOpened ? (
-            <Gate onOpen={handleOpenGate} />
-          ) : (
-            <>
-              <Lobby />
-              <ProjectPortals />
-              <OrbitControls 
-                ref={controlsRef}
-                enableZoom={false} 
-                enablePan={false}
-                maxPolarAngle={Math.PI / 2}
-                minPolarAngle={Math.PI / 3}
-                rotateSpeed={0.5}
-                enableDamping
-                dampingFactor={0.1}
-              />
-            </>
-          )}
-        </Suspense>
+        {!gateOpened ? (
+          <Gate onOpen={handleOpenGate} />
+        ) : (
+          <>
+            <Lobby />
+            <ProjectPortals />
+            <OrbitControls 
+              ref={controlsRef}
+              enableZoom={false} 
+              enablePan={false}
+              maxPolarAngle={Math.PI / 2}
+              minPolarAngle={Math.PI / 3}
+              rotateSpeed={0.5}
+              enableDamping
+              dampingFactor={0.1}
+            />
+          </>
+        )}
         <PerspectiveCamera 
           ref={cameraRef} 
           makeDefault 
@@ -97,8 +113,8 @@ const Home = () => {
         />
       </Canvas>
       
-      {gateOpened && (
-        <nav className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
+      {showNavigation && (
+        <nav className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10 animate-fade-in">
           <div className="flex space-x-8 text-white">
             <button className="text-[#00FEFE] hover:text-[#FF00FF] transition-colors">HOME</button>
             <button className="hover:text-[#00FEFE] transition-colors" onClick={() => navigate('/work')}>WORK</button>
