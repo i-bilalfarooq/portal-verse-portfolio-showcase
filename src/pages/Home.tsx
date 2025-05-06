@@ -10,27 +10,16 @@ import ProjectPortals from '@/components/3d/ProjectPortals';
 import Loading from '@/components/Loading';
 import * as THREE from 'three';
 
+// Register GSAP plugins
+gsap.registerPlugin();
+
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [gateOpened, setGateOpened] = useState(false);
   const [showNavigation, setShowNavigation] = useState(false);
-  const [activeProject, setActiveProject] = useState(-1);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
-  const targetPositionRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 2, 6));
-  const projects = [
-    { position: new THREE.Vector3(-4, 0, -2), id: 'htmllab' },
-    { position: new THREE.Vector3(0, 0, -6), id: 'datasouk' },
-    { position: new THREE.Vector3(4, 0, -10), id: 'waqt' }
-  ];
   const navigate = useNavigate();
-  
-  // Fix GSAP plugin issues
-  useEffect(() => {
-    if (!gsap.globalTimeline.getChildren().length) {
-      gsap.registerPlugin();
-    }
-  }, []);
   
   useEffect(() => {
     // Simulate loading assets
@@ -41,78 +30,7 @@ const Home = () => {
     return () => clearTimeout(timer);
   }, []);
   
-  // Handle scroll events for project navigation
-  useEffect(() => {
-    if (!gateOpened) return;
-    
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      
-      if (!cameraRef.current) return;
-      
-      // Determine scroll direction
-      const direction = Math.sign(e.deltaY);
-      
-      // Update active project index based on scroll direction
-      if (direction > 0) {
-        // Scrolling down (further into scene)
-        setActiveProject(prev => Math.min(projects.length - 1, prev + 1));
-      } else if (direction < 0) {
-        // Scrolling up (back towards gate)
-        setActiveProject(prev => Math.max(-1, prev - 1));
-      }
-    };
-    
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-    };
-  }, [gateOpened]);
-  
-  // Update camera position based on active project
-  useEffect(() => {
-    if (!gateOpened || !cameraRef.current) return;
-    
-    if (activeProject === -1) {
-      // Default position when no project is selected
-      targetPositionRef.current = new THREE.Vector3(0, 2, 6);
-    } else {
-      // Position near the active project
-      const projectPos = projects[activeProject].position;
-      targetPositionRef.current = new THREE.Vector3(
-        projectPos.x * 0.7,
-        projectPos.y + 1,
-        projectPos.z + 4
-      );
-    }
-    
-    // Animate camera to target position
-    if (cameraRef.current) {
-      gsap.to(cameraRef.current.position, {
-        x: targetPositionRef.current.x,
-        y: targetPositionRef.current.y,
-        z: targetPositionRef.current.z,
-        duration: 1.2,
-        ease: "power2.out",
-        onUpdate: () => {
-          // Make camera look at the project or center
-          const lookAtPos = activeProject >= 0 
-            ? new THREE.Vector3(
-                projects[activeProject].position.x,
-                projects[activeProject].position.y,
-                projects[activeProject].position.z
-              )
-            : new THREE.Vector3(0, 0, 0);
-          
-          cameraRef.current?.lookAt(lookAtPos);
-        }
-      });
-    }
-  }, [activeProject, gateOpened, projects]);
-  
   const handleOpenGate = () => {
-    console.log("Gate opening...");
     // Disable controls during transition
     if (controlsRef.current) {
       controlsRef.current.enabled = false;
@@ -120,72 +38,43 @@ const Home = () => {
     
     // Animate camera movement through the gate
     if (cameraRef.current) {
-      // Create a much more immersive journey through the gate
-      gsap.timeline()
-        // First stage: Move forward approaching the gate
-        .to(cameraRef.current.position, {
-          z: 2,
-          duration: 1,
-          ease: "power1.inOut"
-        })
-        // Second stage: Move through the gate with acceleration
-        .to(cameraRef.current.position, {
-          z: -2,
-          duration: 1.5,
-          ease: "power2.in"
-        })
-        // Final stage: Move into the lobby
-        .to(cameraRef.current.position, {
-          z: -10, // Move further in
-          duration: 0.8,
-          ease: "power1.in",
-          onComplete: () => {
-            console.log("Gate opened, transitioning to lobby...");
-            setGateOpened(true);
+      // First stage: move through the gate
+      gsap.to(cameraRef.current.position, {
+        z: -2,
+        duration: 2,
+        ease: "power2.inOut",
+        onComplete: () => {
+          setGateOpened(true);
+          
+          // Second stage: animate camera from far away to the lobby position
+          if (cameraRef.current) {
+            // Set camera to a position far away but looking at the lobby
+            cameraRef.current.position.set(0, 30, 30);
+            cameraRef.current.lookAt(0, 0, 0);
             
-            // Set camera to high position for dramatic entry to lobby
-            if (cameraRef.current) {
-              cameraRef.current.position.set(0, 25, 35);
-              cameraRef.current.lookAt(0, 0, 0);
-              
-              // Create multi-stage dramatic fly-in
-              gsap.timeline()
-                // Initial approach from high altitude
-                .to(cameraRef.current.position, {
-                  y: 15,
-                  z: 20,
-                  duration: 2,
-                  ease: "power1.inOut"
-                })
-                // Descend towards the lobby platform
-                .to(cameraRef.current.position, {
-                  y: 6,
-                  z: 10,
-                  duration: 1.5,
-                  ease: "power2.inOut"
-                })
-                // Final smooth positioning
-                .to(cameraRef.current.position, {
-                  y: 2,
-                  z: 6,
-                  duration: 1,
-                  ease: "power3.out",
-                  onComplete: () => {
-                    console.log("Camera positioned in lobby");
-                    // Show navigation bar
-                    setShowNavigation(true);
-                    
-                    // Re-enable controls after camera is positioned
-                    if (controlsRef.current) {
-                      setTimeout(() => {
-                        controlsRef.current.enabled = true;
-                      }, 300);
-                    }
-                  }
-                });
-            }
+            // Animate camera moving in towards the lobby
+            gsap.to(cameraRef.current.position, {
+              y: 0,
+              z: 5,
+              duration: 2,
+              ease: "power2.inOut",
+              onComplete: () => {
+                // Show navigation bar with a slight delay
+                setTimeout(() => {
+                  setShowNavigation(true);
+                }, 300);
+                
+                // Re-enable controls after camera is positioned
+                if (controlsRef.current) {
+                  setTimeout(() => {
+                    controlsRef.current.enabled = true;
+                  }, 100);
+                }
+              }
+            });
           }
-        });
+        }
+      });
     }
   };
   
@@ -198,27 +87,24 @@ const Home = () => {
       <Canvas shadows>
         <ambientLight intensity={0.3} />
         <directionalLight position={[0, 10, 5]} intensity={1} castShadow />
-        
         {!gateOpened ? (
           <Gate onOpen={handleOpenGate} />
         ) : (
           <>
             <Lobby />
-            <ProjectPortals activeProjectIndex={activeProject} />
+            <ProjectPortals />
             <OrbitControls 
               ref={controlsRef}
               enableZoom={false} 
               enablePan={false}
               maxPolarAngle={Math.PI / 2}
-              minPolarAngle={Math.PI / 3.5}
-              rotateSpeed={0.4}
+              minPolarAngle={Math.PI / 3}
+              rotateSpeed={0.5}
               enableDamping
-              dampingFactor={0.12}
-              enabled={gateOpened}
+              dampingFactor={0.1}
             />
           </>
         )}
-        
         <PerspectiveCamera 
           ref={cameraRef} 
           makeDefault 
@@ -237,12 +123,6 @@ const Home = () => {
             <button className="hover:text-[#00FEFE] transition-colors" onClick={() => navigate('/contact')}>CONTACT</button>
           </div>
         </nav>
-      )}
-      
-      {gateOpened && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-center">
-          <p className="text-sm text-[#00FEFE] animate-pulse">Scroll to navigate through projects</p>
-        </div>
       )}
     </div>
   );

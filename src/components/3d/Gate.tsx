@@ -1,5 +1,5 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { gsap } from 'gsap';
@@ -15,14 +15,6 @@ const Gate = ({ onOpen }: GateProps) => {
   const textRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [opening, setOpening] = useState(false);
-  
-  // Register GSAP plugins at component level
-  useEffect(() => {
-    // Fix GSAP opacity plugin issues
-    if (!gsap.globalTimeline.getChildren().length) {
-      gsap.registerPlugin();
-    }
-  }, []);
   
   useFrame((state) => {
     if (textRef.current) {
@@ -41,7 +33,6 @@ const Gate = ({ onOpen }: GateProps) => {
   const handleOpen = () => {
     if (opening) return;
     
-    console.log("Opening gate...");
     setOpening(true);
     
     if (leftGateRef.current && rightGateRef.current) {
@@ -70,18 +61,16 @@ const Gate = ({ onOpen }: GateProps) => {
         duration: 1.5,
         ease: "power2.inOut",
         onComplete: () => {
-          // Call onOpen with a slight delay for smoother transition
           setTimeout(onOpen, 300);
         }
       });
       
-      // Hide text manually instead of using GSAP opacity
+      // Hide text
       if (textRef.current) {
-        setTimeout(() => {
-          if (textRef.current) {
-            textRef.current.visible = false;
-          }
-        }, 500);
+        gsap.to(textRef.current, {
+          opacity: 0,
+          duration: 0.5
+        });
       }
     }
   };
