@@ -18,7 +18,10 @@ const Gate = ({ onOpen }: GateProps) => {
   
   // Register GSAP plugins at component level
   useEffect(() => {
-    gsap.registerPlugin();
+    // Fix GSAP opacity plugin issues
+    if (!gsap.globalTimeline.getChildren().length) {
+      gsap.registerPlugin();
+    }
   }, []);
   
   useFrame((state) => {
@@ -66,16 +69,18 @@ const Gate = ({ onOpen }: GateProps) => {
         duration: 1.5,
         ease: "power2.inOut",
         onComplete: () => {
+          // Call onOpen with a slight delay for smoother transition
           setTimeout(onOpen, 300);
         }
       });
       
-      // Hide text
+      // Hide text manually instead of using GSAP opacity
       if (textRef.current) {
-        gsap.to(textRef.current, {
-          opacity: 0,
-          duration: 0.5
-        });
+        setTimeout(() => {
+          if (textRef.current) {
+            textRef.current.visible = false;
+          }
+        }, 500);
       }
     }
   };

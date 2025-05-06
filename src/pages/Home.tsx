@@ -10,9 +10,6 @@ import ProjectPortals from '@/components/3d/ProjectPortals';
 import Loading from '@/components/Loading';
 import * as THREE from 'three';
 
-// Register GSAP plugins
-gsap.registerPlugin();
-
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [gateOpened, setGateOpened] = useState(false);
@@ -22,6 +19,13 @@ const Home = () => {
   const scrollRef = useRef<number>(0);
   const targetScrollRef = useRef<number>(0);
   const navigate = useNavigate();
+  
+  // Fix GSAP plugin issues
+  useEffect(() => {
+    if (!gsap.globalTimeline.getChildren().length) {
+      gsap.registerPlugin();
+    }
+  }, []);
   
   useEffect(() => {
     // Simulate loading assets
@@ -38,8 +42,8 @@ const Home = () => {
     
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      // Adjust scroll sensitivity
-      targetScrollRef.current += e.deltaY * 0.005;
+      // Adjust scroll sensitivity - reduced for smoother movement
+      targetScrollRef.current += e.deltaY * 0.003; 
       // Clamp scroll values to prevent going too far
       targetScrollRef.current = Math.max(-5, Math.min(5, targetScrollRef.current));
     };
@@ -49,19 +53,20 @@ const Home = () => {
     // Animation loop for smooth scrolling
     const animateScroll = () => {
       if (gateOpened && cameraRef.current) {
-        // Smooth damping effect for scrolling
-        scrollRef.current += (targetScrollRef.current - scrollRef.current) * 0.05;
+        // Smoother damping effect for scrolling (reduced from 0.05 to 0.03)
+        scrollRef.current += (targetScrollRef.current - scrollRef.current) * 0.03;
         
-        // Move camera based on scroll position along a path
         if (cameraRef.current) {
-          // Create a curved path for camera movement
-          const angle = scrollRef.current * 0.3;
-          const radius = 5; // Distance from center
+          // Create a more interesting path with a slight vertical movement
+          const angle = scrollRef.current * 0.5; // Increased for more pronounced circular movement
+          const radius = 6; // Slightly increased distance from center
           
+          // Updated camera position calculation for smoother circular path
           cameraRef.current.position.x = Math.sin(angle) * radius;
           cameraRef.current.position.z = Math.cos(angle) * radius;
+          cameraRef.current.position.y = 2 + Math.sin(angle * 0.5) * 0.5; // Add gentle up/down motion
           
-          // Always look at the center
+          // Always look at the center with slight offset
           cameraRef.current.lookAt(0, 0, 0);
         }
       }
@@ -85,50 +90,69 @@ const Home = () => {
     
     // Animate camera movement through the gate
     if (cameraRef.current) {
-      // First stage: move through the gate
-      gsap.to(cameraRef.current.position, {
-        z: -2,
-        duration: 2,
-        ease: "power2.inOut",
-        onComplete: () => {
-          setGateOpened(true);
-          
-          // Second stage: create a more dramatic fly-in to the lobby
-          if (cameraRef.current) {
-            // Set camera to a high position far away
-            cameraRef.current.position.set(0, 30, 50);
-            cameraRef.current.lookAt(0, 0, 0);
+      // Create a much more immersive journey through the gate
+      gsap.timeline()
+        // First stage: Move forward approaching the gate
+        .to(cameraRef.current.position, {
+          z: 2,
+          duration: 1,
+          ease: "power1.inOut"
+        })
+        // Second stage: Move through the gate with acceleration
+        .to(cameraRef.current.position, {
+          z: -2,
+          duration: 1.5,
+          ease: "power2.in"
+        })
+        .to(cameraRef.current.position, {
+          z: -10, // Move further in
+          duration: 0.8,
+          ease: "power1.in",
+          onComplete: () => {
+            setGateOpened(true);
             
-            // Animate camera flying in towards the lobby with a curved path
-            gsap.timeline()
-              .to(cameraRef.current.position, {
-                y: 10,
-                z: 25,
-                duration: 1.5,
-                ease: "power2.inOut"
-              })
-              .to(cameraRef.current.position, {
-                y: 2,
-                z: 5,
-                duration: 1.5,
-                ease: "power3.out",
-                onComplete: () => {
-                  // Show navigation bar with a slight delay
-                  setTimeout(() => {
+            // Set camera to high position for dramatic entry to lobby
+            if (cameraRef.current) {
+              cameraRef.current.position.set(0, 25, 35);
+              cameraRef.current.lookAt(0, 0, 0);
+              
+              // Create multi-stage dramatic fly-in
+              gsap.timeline()
+                // Initial approach from high altitude
+                .to(cameraRef.current.position, {
+                  y: 15,
+                  z: 20,
+                  duration: 2,
+                  ease: "power1.inOut"
+                })
+                // Descend towards the lobby platform
+                .to(cameraRef.current.position, {
+                  y: 6,
+                  z: 10,
+                  duration: 1.5,
+                  ease: "power2.inOut"
+                })
+                // Final smooth positioning
+                .to(cameraRef.current.position, {
+                  y: 2,
+                  z: 6,
+                  duration: 1,
+                  ease: "power3.out",
+                  onComplete: () => {
+                    // Show navigation bar
                     setShowNavigation(true);
-                  }, 300);
-                  
-                  // Re-enable controls after camera is positioned
-                  if (controlsRef.current) {
-                    setTimeout(() => {
-                      controlsRef.current.enabled = true;
-                    }, 100);
+                    
+                    // Re-enable controls after camera is positioned
+                    if (controlsRef.current) {
+                      setTimeout(() => {
+                        controlsRef.current.enabled = true;
+                      }, 300);
+                    }
                   }
-                }
-              });
+                });
+            }
           }
-        }
-      });
+        });
     }
   };
   
@@ -152,10 +176,10 @@ const Home = () => {
               enableZoom={false} 
               enablePan={false}
               maxPolarAngle={Math.PI / 2}
-              minPolarAngle={Math.PI / 3}
-              rotateSpeed={0.5}
+              minPolarAngle={Math.PI / 3.5} // Adjust to prevent looking too far down
+              rotateSpeed={0.4} // Reduced for smoother rotation
               enableDamping
-              dampingFactor={0.1}
+              dampingFactor={0.12} // Increased for smoother stopping
             />
           </>
         )}
