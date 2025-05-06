@@ -45,7 +45,7 @@ const projects: ProjectData[] = [
   }
 ];
 
-// Project details component that appears on hover
+// Project details component that appears on hover or when in focus
 const ProjectDetails = ({ project, visible, position, onClick }: { 
   project: ProjectData, 
   visible: boolean,
@@ -56,6 +56,12 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
   const groupRef = useRef<THREE.Group>(null);
   const buttonRef = useRef<THREE.Mesh>(null);
   const [buttonHovered, setButtonHovered] = useState(false);
+  const visibleRef = useRef(visible);
+  
+  // Update ref when prop changes
+  useEffect(() => {
+    visibleRef.current = visible;
+  }, [visible]);
   
   // Fix GSAP plugin issues
   useEffect(() => {
@@ -70,12 +76,12 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
       groupRef.current.quaternion.copy(camera.quaternion);
       
       // Handle visibility with smoother transitions
-      if (visible && groupRef.current.scale.x < 0.95) {
-        groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, 1, 0.1));
-      } else if (!visible && groupRef.current.scale.x > 0.05) {
-        groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, 0, 0.1));
-      }
+      const targetScale = visibleRef.current ? 1 : 0;
+      groupRef.current.scale.x = THREE.MathUtils.lerp(groupRef.current.scale.x, targetScale, 0.1);
+      groupRef.current.scale.y = THREE.MathUtils.lerp(groupRef.current.scale.y, targetScale, 0.1);
+      groupRef.current.scale.z = THREE.MathUtils.lerp(groupRef.current.scale.z, targetScale, 0.1);
       
+      // Only hide when scale is very small
       groupRef.current.visible = groupRef.current.scale.x > 0.01;
       
       // Button hover effect
@@ -91,8 +97,8 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
     <group 
       ref={groupRef} 
       position={[position.x, position.y + 1.5, position.z]}
-      visible={visible}
-      scale={visible ? [1, 1, 1] : [0, 0, 0]}
+      visible={true}
+      scale={[0.01, 0.01, 0.01]} // Start almost invisible for smooth animation
     >
       <mesh position={[0, 0, 0]}>
         <planeGeometry args={[2.2, 1.5]} />
@@ -156,10 +162,14 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
   );
 };
 
-const ProjectPortal = ({ project, animationDelay = 0, cameraPosition }: { 
+const ProjectPortal = ({ 
+  project, 
+  animationDelay = 0, 
+  isActive
+}: { 
   project: ProjectData, 
   animationDelay?: number,
-  cameraPosition: THREE.Vector3
+  isActive: boolean
 }) => {
   const portalRef = useRef<THREE.Group>(null);
   const sphereRef = useRef<THREE.Mesh>(null);
@@ -168,6 +178,17 @@ const ProjectPortal = ({ project, animationDelay = 0, cameraPosition }: {
   const texture = useTexture('/placeholder.svg'); // Use placeholder as fallback
   const [detailsVisible, setDetailsVisible] = useState(false);
   const { camera } = useThree();
+  const isActiveRef = useRef(isActive);
+  const hoveredRef = useRef(hovered);
+  
+  // Update refs when props change
+  useEffect(() => {
+    isActiveRef.current = isActive;
+  }, [isActive]);
+  
+  useEffect(() => {
+    hoveredRef.current = hovered;
+  }, [hovered]);
   
   // Fix GSAP plugin issues
   useEffect(() => {
@@ -189,44 +210,41 @@ const ProjectPortal = ({ project, animationDelay = 0, cameraPosition }: {
     }
   }, [animationDelay, project.position]);
   
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (sphereRef.current && portalRef.current) {
       // Continuous rotation
-      sphereRef.current.rotation.y = clock.getElapsedTime() * 0.2;
+      sphereRef.current.rotation.y += 0.005;
       
       // Update position for the details panel
       if (portalRef.current) {
         setPosition(portalRef.current.position.clone());
       }
       
-      // Calculate distance from camera for scaling effect
-      const distance = camera.position.distanceTo(new THREE.Vector3(...project.position));
-      const isInFocus = distance < 7; // If camera is close to this project
+      // Show details when active or hovered
+      setDetailsVisible(isActiveRef.current || hoveredRef.current);
       
-      // Show details when in focus or hovered
-      setDetailsVisible(isInFocus || hovered);
-      
-      // Scale based on proximity to camera
+      // Scale based on active status or hover
       let targetScale = 1;
-      if (isInFocus) {
-        targetScale = 1.5;
-      } else if (hovered) {
-        targetScale = 1.3;
+      if (isActiveRef.current) {
+        targetScale = 1.5; // Larger when active (scrolled to)
+      } else if (hoveredRef.current) {
+        targetScale = 1.3; // Medium when hovered
       }
       
       // Apply smooth scaling
-      sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
-        sphereRef.current.scale.x,
-        targetScale,
-        0.1
-      ));
+      if (sphereRef.current) {
+        sphereRef.current.scale.x = THREE.MathUtils.lerp(sphereRef.current.scale.x, targetScale, 0.1);
+        sphereRef.current.scale.y = THREE.MathUtils.lerp(sphereRef.current.scale.y, targetScale, 0.1);
+        sphereRef.current.scale.z = THREE.MathUtils.lerp(sphereRef.current.scale.z, targetScale, 0.1);
+      }
       
       // Adjust emissive intensity based on focus/hover
       const material = sphereRef.current.material as THREE.MeshStandardMaterial;
       if (material) {
+        const targetIntensity = isActiveRef.current ? 0.9 : (hoveredRef.current ? 0.8 : 0.3);
         material.emissiveIntensity = THREE.MathUtils.lerp(
           material.emissiveIntensity,
-          isInFocus ? 0.9 : (hovered ? 0.8 : 0.3),
+          targetIntensity,
           0.1
         );
       }
@@ -246,7 +264,7 @@ const ProjectPortal = ({ project, animationDelay = 0, cameraPosition }: {
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
-        {/* Project portal sphere - don't open on click, only through the button */}
+        {/* Project portal sphere */}
         <mesh ref={sphereRef} castShadow>
           <sphereGeometry args={[0.8, 32, 32]} />
           <meshStandardMaterial 
@@ -292,15 +310,7 @@ const ProjectPortal = ({ project, animationDelay = 0, cameraPosition }: {
   );
 };
 
-const ProjectPortals = () => {
-  const { camera } = useThree();
-  const [cameraPosition, setCameraPosition] = useState(new THREE.Vector3());
-  
-  useFrame(() => {
-    // Update camera position for child components
-    setCameraPosition(camera.position.clone());
-  });
-  
+const ProjectPortals = ({ activeProjectIndex = -1 }: { activeProjectIndex?: number }) => {
   return (
     <group>
       {projects.map((project, index) => (
@@ -308,7 +318,7 @@ const ProjectPortals = () => {
           key={project.id} 
           project={project} 
           animationDelay={0.2 * index}
-          cameraPosition={cameraPosition}
+          isActive={index === activeProjectIndex}
         />
       ))}
     </group>

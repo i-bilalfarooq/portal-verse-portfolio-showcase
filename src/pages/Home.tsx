@@ -16,8 +16,13 @@ const Home = () => {
   const [showNavigation, setShowNavigation] = useState(false);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
-  const scrollRef = useRef<number>(0);
-  const targetScrollRef = useRef<number>(0);
+  const targetPositionRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 2, 6));
+  const projects = [
+    { position: new THREE.Vector3(-4, 0, -2), id: 'htmllab' },
+    { position: new THREE.Vector3(0, 0, -6), id: 'datasouk' },
+    { position: new THREE.Vector3(4, 0, -10), id: 'waqt' }
+  ];
+  const activeProjectIndex = useRef<number>(-1);
   const navigate = useNavigate();
   
   // Fix GSAP plugin issues
@@ -42,45 +47,73 @@ const Home = () => {
     
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      // Adjust scroll sensitivity - reduced for smoother movement
-      targetScrollRef.current += e.deltaY * 0.003; 
-      // Clamp scroll values to prevent going too far
-      targetScrollRef.current = Math.max(-5, Math.min(5, targetScrollRef.current));
+      
+      if (!cameraRef.current) return;
+      
+      // Determine scroll direction
+      const direction = Math.sign(e.deltaY);
+      
+      // Update active project index based on scroll direction
+      if (direction > 0) {
+        // Scrolling down (further into scene)
+        activeProjectIndex.current = Math.min(projects.length - 1, activeProjectIndex.current + 1);
+      } else if (direction < 0) {
+        // Scrolling up (back towards gate)
+        activeProjectIndex.current = Math.max(-1, activeProjectIndex.current - 1);
+      }
+      
+      // Set camera target position
+      if (activeProjectIndex.current === -1) {
+        // Default position when no project is selected
+        targetPositionRef.current = new THREE.Vector3(0, 2, 6);
+      } else {
+        // Position near the active project
+        const projectPos = projects[activeProjectIndex.current].position;
+        targetPositionRef.current = new THREE.Vector3(
+          projectPos.x * 0.5, // Offset to side
+          projectPos.y + 1.5,  // Slightly above
+          projectPos.z + 3     // In front of project
+        );
+      }
+      
+      // Animate camera to target position
+      if (cameraRef.current) {
+        gsap.to(cameraRef.current.position, {
+          x: targetPositionRef.current.x,
+          y: targetPositionRef.current.y,
+          z: targetPositionRef.current.z,
+          duration: 1.2,
+          ease: "power2.out"
+        });
+        
+        // Make camera look at the project or center
+        const lookAtPos = activeProjectIndex.current >= 0 
+          ? projects[activeProjectIndex.current].position
+          : new THREE.Vector3(0, 0, 0);
+        
+        gsap.to(cameraRef.current.userData, {
+          lookAtX: lookAtPos.x,
+          lookAtY: lookAtPos.y,
+          lookAtZ: lookAtPos.z,
+          duration: 1.2,
+          ease: "power2.out",
+          onUpdate: () => {
+            cameraRef.current?.lookAt(
+              cameraRef.current.userData.lookAtX,
+              cameraRef.current.userData.lookAtY,
+              cameraRef.current.userData.lookAtZ
+            );
+          }
+        });
+      }
     };
     
     window.addEventListener('wheel', handleWheel, { passive: false });
     
-    // Animation loop for smooth scrolling
-    const animateScroll = () => {
-      if (gateOpened && cameraRef.current) {
-        // Smoother damping effect for scrolling (reduced from 0.05 to 0.03)
-        scrollRef.current += (targetScrollRef.current - scrollRef.current) * 0.03;
-        
-        if (cameraRef.current) {
-          // Create a more interesting path with a slight vertical movement
-          const angle = scrollRef.current * 0.5; // Increased for more pronounced circular movement
-          const radius = 6; // Slightly increased distance from center
-          
-          // Updated camera position calculation for smoother circular path
-          cameraRef.current.position.x = Math.sin(angle) * radius;
-          cameraRef.current.position.z = Math.cos(angle) * radius;
-          cameraRef.current.position.y = 2 + Math.sin(angle * 0.5) * 0.5; // Add gentle up/down motion
-          
-          // Always look at the center with slight offset
-          cameraRef.current.lookAt(0, 0, 0);
-        }
-      }
-      
-      requestAnimationFrame(animateScroll);
-    };
-    
-    const animationId = requestAnimationFrame(animateScroll);
-    
     return () => {
       window.removeEventListener('wheel', handleWheel);
-      cancelAnimationFrame(animationId);
     };
-  }, [gateOpened]);
+  }, [gateOpened, projects]);
   
   const handleOpenGate = () => {
     // Disable controls during transition
@@ -142,6 +175,15 @@ const Home = () => {
                     // Show navigation bar
                     setShowNavigation(true);
                     
+                    // Initialize camera userData for smooth lookAt animations
+                    if (cameraRef.current) {
+                      cameraRef.current.userData = {
+                        lookAtX: 0,
+                        lookAtY: 0,
+                        lookAtZ: 0
+                      };
+                    }
+                    
                     // Re-enable controls after camera is positioned
                     if (controlsRef.current) {
                       setTimeout(() => {
@@ -170,7 +212,7 @@ const Home = () => {
         ) : (
           <>
             <Lobby />
-            <ProjectPortals />
+            <ProjectPortals activeProjectIndex={activeProjectIndex.current} />
             <OrbitControls 
               ref={controlsRef}
               enableZoom={false} 
@@ -180,6 +222,7 @@ const Home = () => {
               rotateSpeed={0.4} // Reduced for smoother rotation
               enableDamping
               dampingFactor={0.12} // Increased for smoother stopping
+              enabled={!isLoading && gateOpened}
             />
           </>
         )}
@@ -201,6 +244,12 @@ const Home = () => {
             <button className="hover:text-[#00FEFE] transition-colors" onClick={() => navigate('/contact')}>CONTACT</button>
           </div>
         </nav>
+      )}
+      
+      {gateOpened && (
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-center">
+          <p className="text-sm text-[#00FEFE] animate-pulse">Scroll to navigate through projects</p>
+        </div>
       )}
     </div>
   );

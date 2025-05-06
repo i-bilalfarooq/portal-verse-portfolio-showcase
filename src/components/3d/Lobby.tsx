@@ -235,6 +235,37 @@ const Lobby = () => {
           side={THREE.DoubleSide}
         />
       </mesh>
+      
+      {/* Path indicators for projects */}
+      <mesh position={[-2, -1.45, -1]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[4, 2]} />
+        <meshBasicMaterial 
+          color="#00FEFE" 
+          transparent={true} 
+          opacity={0.1} 
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      
+      <mesh position={[0, -1.45, -3]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[4, 4]} />
+        <meshBasicMaterial 
+          color="#00FEFE" 
+          transparent={true} 
+          opacity={0.1} 
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      
+      <mesh position={[2, -1.45, -5]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[4, 6]} />
+        <meshBasicMaterial 
+          color="#00FEFE" 
+          transparent={true} 
+          opacity={0.1} 
+          side={THREE.DoubleSide}
+        />
+      </mesh>
     </group>
   );
 };
