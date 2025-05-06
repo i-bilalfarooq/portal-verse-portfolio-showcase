@@ -10,6 +10,9 @@ import ProjectPortals from '@/components/3d/ProjectPortals';
 import Loading from '@/components/Loading';
 import * as THREE from 'three';
 
+// Register GSAP plugins
+gsap.registerPlugin();
+
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [gateOpened, setGateOpened] = useState(false);

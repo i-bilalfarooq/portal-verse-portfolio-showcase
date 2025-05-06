@@ -21,7 +21,7 @@ const projects: ProjectData[] = [
     description: 'AI-Based HTML and CSS Generator',
     color: '#4285F4', // Google blue
     position: [-2.5, 0, 0],
-    image: 'lovable-uploads/79b3a268-53ea-413d-806c-3e7dcb0f6f8e.png'
+    image: '/placeholder.svg'
   },
   {
     id: 'waqt',
@@ -29,7 +29,7 @@ const projects: ProjectData[] = [
     description: 'E-Commerce Website for a watch brand',
     color: '#FBBC04', // Google yellow
     position: [0, 0, -2.5],
-    image: 'lovable-uploads/3c7b4681-4979-42ff-8cac-1afde195b6ed.png'
+    image: '/placeholder.svg'
   },
   {
     id: 'datasouk',
@@ -37,7 +37,7 @@ const projects: ProjectData[] = [
     description: 'Blockchain-Based B2B Data Sharing Platform',
     color: '#34A853', // Google green
     position: [2.5, 0, 0],
-    image: 'lovable-uploads/21af87d5-7891-4541-a3f0-af9ebc2f516e.png'
+    image: '/placeholder.svg'
   }
 ];
 
