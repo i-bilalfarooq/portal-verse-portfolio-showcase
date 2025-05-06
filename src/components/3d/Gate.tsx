@@ -16,6 +16,11 @@ const Gate = ({ onOpen }: GateProps) => {
   const [hovered, setHovered] = useState(false);
   const [opening, setOpening] = useState(false);
   
+  // Register GSAP plugins at component level
+  useEffect(() => {
+    gsap.registerPlugin();
+  }, []);
+  
   useFrame((state) => {
     if (textRef.current) {
       textRef.current.position.y = Math.sin(state.clock.getElapsedTime()) * 0.1;

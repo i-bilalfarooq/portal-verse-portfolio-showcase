@@ -22,6 +22,9 @@ const Lobby = () => {
   }
   
   useEffect(() => {
+    // Register GSAP plugins
+    gsap.registerPlugin();
+    
     // Start floor and platform from far away and animate them in
     if (floorRef.current) {
       floorRef.current.position.y = -30;

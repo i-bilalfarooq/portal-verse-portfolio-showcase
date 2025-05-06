@@ -19,6 +19,8 @@ const Home = () => {
   const [showNavigation, setShowNavigation] = useState(false);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
+  const scrollRef = useRef<number>(0);
+  const targetScrollRef = useRef<number>(0);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -29,6 +31,51 @@ const Home = () => {
     
     return () => clearTimeout(timer);
   }, []);
+  
+  // Handle scroll events for project navigation
+  useEffect(() => {
+    if (!gateOpened) return;
+    
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      // Adjust scroll sensitivity
+      targetScrollRef.current += e.deltaY * 0.005;
+      // Clamp scroll values to prevent going too far
+      targetScrollRef.current = Math.max(-5, Math.min(5, targetScrollRef.current));
+    };
+    
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    
+    // Animation loop for smooth scrolling
+    const animateScroll = () => {
+      if (gateOpened && cameraRef.current) {
+        // Smooth damping effect for scrolling
+        scrollRef.current += (targetScrollRef.current - scrollRef.current) * 0.05;
+        
+        // Move camera based on scroll position along a path
+        if (cameraRef.current) {
+          // Create a curved path for camera movement
+          const angle = scrollRef.current * 0.3;
+          const radius = 5; // Distance from center
+          
+          cameraRef.current.position.x = Math.sin(angle) * radius;
+          cameraRef.current.position.z = Math.cos(angle) * radius;
+          
+          // Always look at the center
+          cameraRef.current.lookAt(0, 0, 0);
+        }
+      }
+      
+      requestAnimationFrame(animateScroll);
+    };
+    
+    const animationId = requestAnimationFrame(animateScroll);
+    
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      cancelAnimationFrame(animationId);
+    };
+  }, [gateOpened]);
   
   const handleOpenGate = () => {
     // Disable controls during transition
@@ -46,32 +93,39 @@ const Home = () => {
         onComplete: () => {
           setGateOpened(true);
           
-          // Second stage: animate camera from far away to the lobby position
+          // Second stage: create a more dramatic fly-in to the lobby
           if (cameraRef.current) {
-            // Set camera to a position far away but looking at the lobby
-            cameraRef.current.position.set(0, 30, 30);
+            // Set camera to a high position far away
+            cameraRef.current.position.set(0, 30, 50);
             cameraRef.current.lookAt(0, 0, 0);
             
-            // Animate camera moving in towards the lobby
-            gsap.to(cameraRef.current.position, {
-              y: 0,
-              z: 5,
-              duration: 2,
-              ease: "power2.inOut",
-              onComplete: () => {
-                // Show navigation bar with a slight delay
-                setTimeout(() => {
-                  setShowNavigation(true);
-                }, 300);
-                
-                // Re-enable controls after camera is positioned
-                if (controlsRef.current) {
+            // Animate camera flying in towards the lobby with a curved path
+            gsap.timeline()
+              .to(cameraRef.current.position, {
+                y: 10,
+                z: 25,
+                duration: 1.5,
+                ease: "power2.inOut"
+              })
+              .to(cameraRef.current.position, {
+                y: 2,
+                z: 5,
+                duration: 1.5,
+                ease: "power3.out",
+                onComplete: () => {
+                  // Show navigation bar with a slight delay
                   setTimeout(() => {
-                    controlsRef.current.enabled = true;
-                  }, 100);
+                    setShowNavigation(true);
+                  }, 300);
+                  
+                  // Re-enable controls after camera is positioned
+                  if (controlsRef.current) {
+                    setTimeout(() => {
+                      controlsRef.current.enabled = true;
+                    }, 100);
+                  }
                 }
-              }
-            });
+              });
           }
         }
       });
