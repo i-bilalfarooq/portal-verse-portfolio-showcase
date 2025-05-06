@@ -26,7 +26,7 @@ const Lobby = () => {
     const phi = Math.acos(2 * Math.random() - 1);
     
     positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
-    positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta) + (Math.random() * 5); // Add some height variation
+    positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta) + (Math.random() * 5);
     positions[i3 + 2] = radius * Math.cos(phi);
     
     // Add color variation - mostly cyan with occasional pink
@@ -44,8 +44,8 @@ const Lobby = () => {
     }
   }
   
-  // Fix GSAP plugin issues
   useEffect(() => {
+    // Fix GSAP plugin issues
     if (!gsap.globalTimeline.getChildren().length) {
       gsap.registerPlugin();
     }
@@ -138,9 +138,9 @@ const Lobby = () => {
           emissiveIntensity={0.05}
         />
         
-        {/* Grid pattern on floor - more detailed */}
+        {/* Grid pattern on floor */}
         <mesh rotation={[0, 0, 0]} position={[0, 0.01, 0]}>
-          <planeGeometry args={[50, 50, 50, 50]} /> {/* More grid lines */}
+          <planeGeometry args={[50, 50, 50, 50]} />
           <meshBasicMaterial 
             wireframe
             color="#00FEFE"
@@ -175,7 +175,7 @@ const Lobby = () => {
         />
       </points>
       
-      {/* Center platform with better details */}
+      {/* Center platform */}
       <mesh 
         ref={platformRef} 
         position={[0, -1.5, 0]} 
@@ -236,36 +236,34 @@ const Lobby = () => {
         />
       </mesh>
       
-      {/* Path indicators for projects */}
-      <mesh position={[-2, -1.45, -1]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 2]} />
-        <meshBasicMaterial 
-          color="#00FEFE" 
-          transparent={true} 
-          opacity={0.1} 
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      
-      <mesh position={[0, -1.45, -3]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 4]} />
-        <meshBasicMaterial 
-          color="#00FEFE" 
-          transparent={true} 
-          opacity={0.1} 
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      
-      <mesh position={[2, -1.45, -5]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 6]} />
-        <meshBasicMaterial 
-          color="#00FEFE" 
-          transparent={true} 
-          opacity={0.1} 
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+      {/* Project path indicators - now styled as spotlight beams */}
+      {[
+        { pos: [-4, -1.45, -2], size: [2, 10] },
+        { pos: [0, -1.45, -6], size: [2, 10] },
+        { pos: [4, -1.45, -10], size: [2, 10] }
+      ].map((path, index) => (
+        <group key={`path-${index}`} position={[path.pos[0], path.pos[1], path.pos[2]]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[path.size[0], path.size[1]]} />
+            <meshBasicMaterial 
+              color="#00FEFE" 
+              transparent={true} 
+              opacity={0.03} 
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          {/* Add a small spotlight effect at the project location */}
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+            <circleGeometry args={[1.5, 32]} />
+            <meshBasicMaterial 
+              color="#00FEFE" 
+              transparent={true} 
+              opacity={0.15} 
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 };

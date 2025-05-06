@@ -14,6 +14,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [gateOpened, setGateOpened] = useState(false);
   const [showNavigation, setShowNavigation] = useState(false);
+  const [activeProject, setActiveProject] = useState(-1);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
   const targetPositionRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 2, 6));
@@ -22,7 +23,6 @@ const Home = () => {
     { position: new THREE.Vector3(0, 0, -6), id: 'datasouk' },
     { position: new THREE.Vector3(4, 0, -10), id: 'waqt' }
   ];
-  const activeProjectIndex = useRef<number>(-1);
   const navigate = useNavigate();
   
   // Fix GSAP plugin issues
@@ -56,55 +56,10 @@ const Home = () => {
       // Update active project index based on scroll direction
       if (direction > 0) {
         // Scrolling down (further into scene)
-        activeProjectIndex.current = Math.min(projects.length - 1, activeProjectIndex.current + 1);
+        setActiveProject(prev => Math.min(projects.length - 1, prev + 1));
       } else if (direction < 0) {
         // Scrolling up (back towards gate)
-        activeProjectIndex.current = Math.max(-1, activeProjectIndex.current - 1);
-      }
-      
-      // Set camera target position
-      if (activeProjectIndex.current === -1) {
-        // Default position when no project is selected
-        targetPositionRef.current = new THREE.Vector3(0, 2, 6);
-      } else {
-        // Position near the active project
-        const projectPos = projects[activeProjectIndex.current].position;
-        targetPositionRef.current = new THREE.Vector3(
-          projectPos.x * 0.5, // Offset to side
-          projectPos.y + 1.5,  // Slightly above
-          projectPos.z + 3     // In front of project
-        );
-      }
-      
-      // Animate camera to target position
-      if (cameraRef.current) {
-        gsap.to(cameraRef.current.position, {
-          x: targetPositionRef.current.x,
-          y: targetPositionRef.current.y,
-          z: targetPositionRef.current.z,
-          duration: 1.2,
-          ease: "power2.out"
-        });
-        
-        // Make camera look at the project or center
-        const lookAtPos = activeProjectIndex.current >= 0 
-          ? projects[activeProjectIndex.current].position
-          : new THREE.Vector3(0, 0, 0);
-        
-        gsap.to(cameraRef.current.userData, {
-          lookAtX: lookAtPos.x,
-          lookAtY: lookAtPos.y,
-          lookAtZ: lookAtPos.z,
-          duration: 1.2,
-          ease: "power2.out",
-          onUpdate: () => {
-            cameraRef.current?.lookAt(
-              cameraRef.current.userData.lookAtX,
-              cameraRef.current.userData.lookAtY,
-              cameraRef.current.userData.lookAtZ
-            );
-          }
-        });
+        setActiveProject(prev => Math.max(-1, prev - 1));
       }
     };
     
@@ -113,9 +68,51 @@ const Home = () => {
     return () => {
       window.removeEventListener('wheel', handleWheel);
     };
-  }, [gateOpened, projects]);
+  }, [gateOpened]);
+  
+  // Update camera position based on active project
+  useEffect(() => {
+    if (!gateOpened || !cameraRef.current) return;
+    
+    if (activeProject === -1) {
+      // Default position when no project is selected
+      targetPositionRef.current = new THREE.Vector3(0, 2, 6);
+    } else {
+      // Position near the active project
+      const projectPos = projects[activeProject].position;
+      targetPositionRef.current = new THREE.Vector3(
+        projectPos.x * 0.7,
+        projectPos.y + 1,
+        projectPos.z + 4
+      );
+    }
+    
+    // Animate camera to target position
+    if (cameraRef.current) {
+      gsap.to(cameraRef.current.position, {
+        x: targetPositionRef.current.x,
+        y: targetPositionRef.current.y,
+        z: targetPositionRef.current.z,
+        duration: 1.2,
+        ease: "power2.out",
+        onUpdate: () => {
+          // Make camera look at the project or center
+          const lookAtPos = activeProject >= 0 
+            ? new THREE.Vector3(
+                projects[activeProject].position.x,
+                projects[activeProject].position.y,
+                projects[activeProject].position.z
+              )
+            : new THREE.Vector3(0, 0, 0);
+          
+          cameraRef.current?.lookAt(lookAtPos);
+        }
+      });
+    }
+  }, [activeProject, gateOpened, projects]);
   
   const handleOpenGate = () => {
+    console.log("Gate opening...");
     // Disable controls during transition
     if (controlsRef.current) {
       controlsRef.current.enabled = false;
@@ -137,11 +134,13 @@ const Home = () => {
           duration: 1.5,
           ease: "power2.in"
         })
+        // Final stage: Move into the lobby
         .to(cameraRef.current.position, {
           z: -10, // Move further in
           duration: 0.8,
           ease: "power1.in",
           onComplete: () => {
+            console.log("Gate opened, transitioning to lobby...");
             setGateOpened(true);
             
             // Set camera to high position for dramatic entry to lobby
@@ -172,17 +171,9 @@ const Home = () => {
                   duration: 1,
                   ease: "power3.out",
                   onComplete: () => {
+                    console.log("Camera positioned in lobby");
                     // Show navigation bar
                     setShowNavigation(true);
-                    
-                    // Initialize camera userData for smooth lookAt animations
-                    if (cameraRef.current) {
-                      cameraRef.current.userData = {
-                        lookAtX: 0,
-                        lookAtY: 0,
-                        lookAtZ: 0
-                      };
-                    }
                     
                     // Re-enable controls after camera is positioned
                     if (controlsRef.current) {
@@ -207,25 +198,27 @@ const Home = () => {
       <Canvas shadows>
         <ambientLight intensity={0.3} />
         <directionalLight position={[0, 10, 5]} intensity={1} castShadow />
+        
         {!gateOpened ? (
           <Gate onOpen={handleOpenGate} />
         ) : (
           <>
             <Lobby />
-            <ProjectPortals activeProjectIndex={activeProjectIndex.current} />
+            <ProjectPortals activeProjectIndex={activeProject} />
             <OrbitControls 
               ref={controlsRef}
               enableZoom={false} 
               enablePan={false}
               maxPolarAngle={Math.PI / 2}
-              minPolarAngle={Math.PI / 3.5} // Adjust to prevent looking too far down
-              rotateSpeed={0.4} // Reduced for smoother rotation
+              minPolarAngle={Math.PI / 3.5}
+              rotateSpeed={0.4}
               enableDamping
-              dampingFactor={0.12} // Increased for smoother stopping
-              enabled={!isLoading && gateOpened}
+              dampingFactor={0.12}
+              enabled={gateOpened}
             />
           </>
         )}
+        
         <PerspectiveCamera 
           ref={cameraRef} 
           makeDefault 

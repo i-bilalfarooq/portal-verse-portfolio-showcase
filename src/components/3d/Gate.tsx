@@ -1,5 +1,5 @@
 
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { gsap } from 'gsap';
@@ -41,6 +41,7 @@ const Gate = ({ onOpen }: GateProps) => {
   const handleOpen = () => {
     if (opening) return;
     
+    console.log("Opening gate...");
     setOpening(true);
     
     if (leftGateRef.current && rightGateRef.current) {

@@ -1,7 +1,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Text, useTexture } from '@react-three/drei';
+import { Text, useTexture, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 
@@ -20,8 +20,8 @@ const projects: ProjectData[] = [
     id: 'htmllab',
     title: 'HTMLLab',
     description: 'AI-Based HTML and CSS Generator',
-    color: '#4285F4', // Google blue
-    position: [-4, 0, -2], // Positioned better for scroll navigation
+    color: '#4285F4',
+    position: [-4, 0, -2],
     image: '/placeholder.svg',
     url: 'https://htmllab.run.place/'
   },
@@ -29,8 +29,8 @@ const projects: ProjectData[] = [
     id: 'datasouk',
     title: 'DataSouk',
     description: 'Blockchain-Based B2B Data Sharing Platform',
-    color: '#34A853', // Google green
-    position: [0, 0, -6], // In the middle distance for scroll navigation
+    color: '#34A853',
+    position: [0, 0, -6],
     image: '/placeholder.svg',
     url: 'https://datasouk.great-site.net/'
   },
@@ -38,14 +38,14 @@ const projects: ProjectData[] = [
     id: 'waqt',
     title: 'Waqt',
     description: 'E-Commerce Website for a watch brand',
-    color: '#FBBC04', // Google yellow
-    position: [4, 0, -10], // Furthest back for scroll navigation
+    color: '#FBBC04',
+    position: [4, 0, -10],
     image: '/placeholder.svg',
     url: 'https://waqt.publicvm.com/'
   }
 ];
 
-// Project details component that appears on hover or when in focus
+// Project details component that appears on hover
 const ProjectDetails = ({ project, visible, position, onClick }: { 
   project: ProjectData, 
   visible: boolean,
@@ -58,17 +58,9 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
   const [buttonHovered, setButtonHovered] = useState(false);
   const visibleRef = useRef(visible);
   
-  // Update ref when prop changes
   useEffect(() => {
     visibleRef.current = visible;
   }, [visible]);
-  
-  // Fix GSAP plugin issues
-  useEffect(() => {
-    if (!gsap.globalTimeline.getChildren().length) {
-      gsap.registerPlugin();
-    }
-  }, []);
   
   useFrame(() => {
     if (groupRef.current) {
@@ -98,7 +90,7 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
       ref={groupRef} 
       position={[position.x, position.y + 1.5, position.z]}
       visible={true}
-      scale={[0.01, 0.01, 0.01]} // Start almost invisible for smooth animation
+      scale={[0.01, 0.01, 0.01]}
     >
       <mesh position={[0, 0, 0]}>
         <planeGeometry args={[2.2, 1.5]} />
@@ -116,7 +108,7 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
         anchorX="center"
         anchorY="middle"
         fontSize={0.18}
-        font="/fonts/Inter-Bold.woff" // Assuming you have this font
+        font="/fonts/Inter-Bold.woff"
       >
         {project.title}
       </Text>
@@ -133,7 +125,7 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
         {project.description}
       </Text>
       
-      {/* View Project Button - now bigger and with hover effect */}
+      {/* View Project Button */}
       <group 
         position={[0, -0.4, 0.01]} 
         onClick={(e) => {
@@ -153,7 +145,7 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
           anchorX="center"
           anchorY="middle"
           fontSize={0.14}
-          font="/fonts/Inter-Bold.woff" // Assuming you have this font
+          font="/fonts/Inter-Bold.woff"
         >
           View Project
         </Text>
@@ -162,7 +154,7 @@ const ProjectDetails = ({ project, visible, position, onClick }: {
   );
 };
 
-const ProjectPortal = ({ 
+const ProjectFrame = ({ 
   project, 
   animationDelay = 0, 
   isActive
@@ -171,17 +163,15 @@ const ProjectPortal = ({
   animationDelay?: number,
   isActive: boolean
 }) => {
-  const portalRef = useRef<THREE.Group>(null);
-  const sphereRef = useRef<THREE.Mesh>(null);
+  const frameRef = useRef<THREE.Group>(null);
+  const planeRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   const [position, setPosition] = useState(new THREE.Vector3(...project.position));
-  const texture = useTexture('/placeholder.svg'); // Use placeholder as fallback
+  const texture = useTexture(project.image);
   const [detailsVisible, setDetailsVisible] = useState(false);
-  const { camera } = useThree();
   const isActiveRef = useRef(isActive);
   const hoveredRef = useRef(hovered);
   
-  // Update refs when props change
   useEffect(() => {
     isActiveRef.current = isActive;
   }, [isActive]);
@@ -190,34 +180,27 @@ const ProjectPortal = ({
     hoveredRef.current = hovered;
   }, [hovered]);
   
-  // Fix GSAP plugin issues
-  useEffect(() => {
-    if (!gsap.globalTimeline.getChildren().length) {
-      gsap.registerPlugin();
-    }
-  }, []);
-  
   // Entry animation
   useEffect(() => {
-    if (portalRef.current) {
-      portalRef.current.position.y = 10;
-      gsap.to(portalRef.current.position, {
+    if (frameRef.current) {
+      // Start from below
+      frameRef.current.position.y = -5;
+      
+      // Use GSAP for animation
+      gsap.to(frameRef.current.position, {
         y: project.position[1],
         duration: 1.5,
         delay: animationDelay,
-        ease: "elastic.out(1, 0.75)"
+        ease: "power3.out"
       });
     }
   }, [animationDelay, project.position]);
   
   useFrame(() => {
-    if (sphereRef.current && portalRef.current) {
-      // Continuous rotation
-      sphereRef.current.rotation.y += 0.005;
-      
+    if (planeRef.current && frameRef.current) {
       // Update position for the details panel
-      if (portalRef.current) {
-        setPosition(portalRef.current.position.clone());
+      if (frameRef.current) {
+        setPosition(frameRef.current.position.clone());
       }
       
       // Show details when active or hovered
@@ -226,27 +209,20 @@ const ProjectPortal = ({
       // Scale based on active status or hover
       let targetScale = 1;
       if (isActiveRef.current) {
-        targetScale = 1.5; // Larger when active (scrolled to)
+        targetScale = 1.2; // Larger when active
       } else if (hoveredRef.current) {
-        targetScale = 1.3; // Medium when hovered
+        targetScale = 1.1; // Medium when hovered
       }
       
       // Apply smooth scaling
-      if (sphereRef.current) {
-        sphereRef.current.scale.x = THREE.MathUtils.lerp(sphereRef.current.scale.x, targetScale, 0.1);
-        sphereRef.current.scale.y = THREE.MathUtils.lerp(sphereRef.current.scale.y, targetScale, 0.1);
-        sphereRef.current.scale.z = THREE.MathUtils.lerp(sphereRef.current.scale.z, targetScale, 0.1);
+      if (planeRef.current) {
+        planeRef.current.scale.x = THREE.MathUtils.lerp(planeRef.current.scale.x, targetScale, 0.1);
+        planeRef.current.scale.y = THREE.MathUtils.lerp(planeRef.current.scale.y, targetScale, 0.1);
       }
       
-      // Adjust emissive intensity based on focus/hover
-      const material = sphereRef.current.material as THREE.MeshStandardMaterial;
-      if (material) {
-        const targetIntensity = isActiveRef.current ? 0.9 : (hoveredRef.current ? 0.8 : 0.3);
-        material.emissiveIntensity = THREE.MathUtils.lerp(
-          material.emissiveIntensity,
-          targetIntensity,
-          0.1
-        );
+      // Gentle floating animation
+      if (frameRef.current && !isActiveRef.current && !hoveredRef.current) {
+        frameRef.current.position.y += Math.sin(Date.now() * 0.001) * 0.0005;
       }
     }
   });
@@ -259,39 +235,36 @@ const ProjectPortal = ({
   return (
     <group>
       <group
-        ref={portalRef}
+        ref={frameRef}
         position={[project.position[0], project.position[1], project.position[2]]}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
-        {/* Project portal sphere */}
-        <mesh ref={sphereRef} castShadow>
-          <sphereGeometry args={[0.8, 32, 32]} />
+        {/* Project frame */}
+        <mesh ref={planeRef}>
+          <planeGeometry args={[3, 2]} />
           <meshStandardMaterial 
-            color={project.color} 
-            metalness={0.6} 
-            roughness={0.2} 
-            emissive={project.color} 
-            emissiveIntensity={0.3}
             map={texture}
+            side={THREE.DoubleSide}
           />
-          
-          {/* Orbit rings */}
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[1, 0.02, 16, 100]} />
-            <meshStandardMaterial color="#fff" transparent opacity={0.3} />
-          </mesh>
-          <mesh rotation={[0, 0, Math.PI / 2]}>
-            <torusGeometry args={[1.1, 0.02, 16, 100]} />
-            <meshStandardMaterial color="#00FEFE" transparent opacity={0.3} />
-          </mesh>
         </mesh>
         
-        {/* Project name always visible */}
+        {/* Frame border */}
+        <mesh position={[0, 0, -0.01]}>
+          <planeGeometry args={[3.2, 2.2]} />
+          <meshStandardMaterial 
+            color={project.color} 
+            metalness={0.6}
+            emissive={project.color}
+            emissiveIntensity={isActiveRef.current ? 0.8 : (hoveredRef.current ? 0.5 : 0.2)}
+          />
+        </mesh>
+        
+        {/* Project title */}
         <Text
-          position={[0, -1.2, 0]}
+          position={[0, -1.3, 0]}
           fontSize={0.2}
-          color="#00FEFE"
+          color="#FFFFFF"
           anchorX="center"
           anchorY="middle"
         >
@@ -299,7 +272,7 @@ const ProjectPortal = ({
         </Text>
       </group>
       
-      {/* Project details panel - separate from the sphere for better interaction */}
+      {/* Project details panel */}
       <ProjectDetails 
         project={project} 
         visible={detailsVisible} 
@@ -314,7 +287,7 @@ const ProjectPortals = ({ activeProjectIndex = -1 }: { activeProjectIndex?: numb
   return (
     <group>
       {projects.map((project, index) => (
-        <ProjectPortal 
+        <ProjectFrame
           key={project.id} 
           project={project} 
           animationDelay={0.2 * index}
