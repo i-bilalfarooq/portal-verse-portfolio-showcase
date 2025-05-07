@@ -63,8 +63,8 @@ const Home = () => {
             // Animate camera moving in towards the lobby - adjust for mobile
             gsap.to(cameraRef.current.position, {
               y: 0,
-              // Position camera further back on mobile for better viewing
-              z: isMobile ? 9 : 5,
+              // Position camera closer in mobile for better view of projects
+              z: isMobile ? 5 : 5,
               duration: 2,
               ease: "power2.inOut",
               onComplete: () => {
@@ -118,12 +118,12 @@ const Home = () => {
           ref={cameraRef} 
           makeDefault 
           position={[0, 0, 5]} 
-          fov={isMobile ? 85 : 75} // Wider FOV for mobile
+          fov={isMobile ? 75 : 75} // Adjusted FOV
         />
       </Canvas>
       
       {showNavigation && (
-        <nav className={`absolute ${isMobile ? 'bottom-8' : 'top-8'} left-1/2 transform -translate-x-1/2 z-10 animate-fade-in`}>
+        <nav className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10 animate-fade-in">
           <div className={`flex ${isMobile ? 'flex-wrap justify-center gap-3' : 'space-x-8'} text-white`}>
             <button className="text-[#00FEFE] hover:text-[#FF00FF] transition-colors text-sm md:text-base">HOME</button>
             <button className="hover:text-[#00FEFE] transition-colors text-sm md:text-base" onClick={() => navigate('/work')}>WORK</button>

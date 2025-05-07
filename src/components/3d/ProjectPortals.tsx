@@ -48,20 +48,23 @@ const projects: ProjectData[] = [
 const ProjectPortal = ({ 
   project, 
   animationDelay = 0,
-  isMobile 
+  isMobile,
+  activeProjectId,
+  setActiveProjectId
 }: { 
   project: ProjectData, 
   animationDelay?: number,
-  isMobile: boolean
+  isMobile: boolean,
+  activeProjectId: string | null,
+  setActiveProjectId: (id: string | null) => void
 }) => {
   const portalRef = useRef<THREE.Group>(null);
   const sphereRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
-  const [detailsVisible, setDetailsVisible] = useState(false);
-  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Use mobile or desktop position based on screen size
   const position = isMobile ? project.mobilePosition : project.position;
+  const isActive = activeProjectId === project.id;
   
   useEffect(() => {
     // Entry animation - start from above and animate down
@@ -76,76 +79,15 @@ const ProjectPortal = ({
     }
   }, [animationDelay, position]);
   
-  useEffect(() => {
-    // Cleanup any timeout when component unmounts
-    return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const handlePointerOver = () => {
-    // For desktop: Start hover state
-    if (!isMobile) {
-      setHovered(true);
-      
-      // Clear any existing timeout
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-        hoverTimeoutRef.current = null;
-      }
-      
-      // Show details after a very brief delay to prevent flickering
-      setTimeout(() => {
-        setDetailsVisible(true);
-      }, 50);
-    }
-  };
-
-  const handlePointerOut = () => {
-    // For desktop: Only exit hover after a delay to improve UX
-    if (!isMobile) {
-      setHovered(false);
-      
-      // Set a timeout before hiding details
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-      
-      hoverTimeoutRef.current = setTimeout(() => {
-        setDetailsVisible(false);
-      }, 300); // Delay hiding details to give user time to move to the card
-    }
-  };
-  
-  // Handle click for mobile
   const handleClick = () => {
-    if (isMobile) {
-      setDetailsVisible(!detailsVisible);
-      setHovered(!hovered);
+    // If this project is already active, deactivate it
+    if (isActive) {
+      setActiveProjectId(null);
+    } else {
+      // Otherwise, activate this project (which will deactivate any other)
+      setActiveProjectId(project.id);
     }
-  };
-  
-  // Handle when user hovers over the details card itself
-  const handleCardHover = (entering: boolean) => {
-    if (!isMobile) {
-      if (entering) {
-        // Keep details visible when hovering over the card
-        if (hoverTimeoutRef.current) {
-          clearTimeout(hoverTimeoutRef.current);
-          hoverTimeoutRef.current = null;
-        }
-        setHovered(true);
-        setDetailsVisible(true);
-      } else {
-        // Set timeout to hide after leaving the card
-        hoverTimeoutRef.current = setTimeout(() => {
-          setDetailsVisible(false);
-          setHovered(false);
-        }, 300);
-      }
-    }
+    setHovered(!hovered);
   };
   
   useFrame(({ clock }) => {
@@ -153,8 +95,8 @@ const ProjectPortal = ({
       // Continuous rotation
       sphereRef.current.rotation.y = clock.getElapsedTime() * 0.2;
       
-      // Hover effect
-      if (hovered) {
+      // Scale effect for active project
+      if (isActive) {
         sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
           sphereRef.current.scale.x,
           1.3,
@@ -177,8 +119,6 @@ const ProjectPortal = ({
     <group
       ref={portalRef}
       position={[position[0], position[1], position[2]]}
-      onPointerOver={handlePointerOver}
-      onPointerOut={handlePointerOut}
       onClick={handleClick}
     >
       {/* Project portal sphere */}
@@ -189,7 +129,7 @@ const ProjectPortal = ({
           metalness={0.6} 
           roughness={0.2} 
           emissive={project.color} 
-          emissiveIntensity={hovered ? 0.8 : 0.3}
+          emissiveIntensity={isActive ? 0.8 : 0.3}
         />
         
         {/* Orbit rings */}
@@ -214,16 +154,14 @@ const ProjectPortal = ({
         {project.title}
       </Text>
       
-      {/* Project details on hover (desktop) or tap (mobile) */}
-      {detailsVisible && (
+      {/* Project details on click */}
+      {isActive && (
         <Html
           position={[0, 0, 0]}
           center
           distanceFactor={isMobile ? 6 : 10}
           className="pointer-events-auto"
           style={{ pointerEvents: 'all' }}
-          onPointerOver={() => handleCardHover(true)}
-          onPointerOut={() => handleCardHover(false)}
         >
           <div 
             className={`${isMobile ? 'w-64' : 'w-96'} bg-gray-900/90 backdrop-blur-md p-3 rounded-md border border-[#00FEFE] text-white`}
@@ -252,15 +190,32 @@ const ProjectPortal = ({
 
 const ProjectPortals = () => {
   const isMobile = useIsMobile();
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   
   return (
     <group>
+      {/* 3D Text for "My Projects" label behind the project spheres */}
+      <Text
+        position={[0, 1.5, -3]}
+        fontSize={isMobile ? 0.8 : 1.2}
+        color="#00FEFE"
+        anchorX="center"
+        anchorY="middle"
+        depthOffset={-10}
+        outlineWidth={0.02}
+        outlineColor="#005a5a"
+      >
+        My Projects
+      </Text>
+      
       {projects.map((project, index) => (
         <ProjectPortal 
           key={project.id} 
           project={project} 
           animationDelay={0.2 * index}
           isMobile={isMobile}
+          activeProjectId={activeProjectId}
+          setActiveProjectId={setActiveProjectId}
         />
       ))}
     </group>
