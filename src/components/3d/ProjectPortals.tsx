@@ -60,11 +60,10 @@ const ProjectPortal = ({
 }) => {
   const portalRef = useRef<THREE.Group>(null);
   const sphereRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
+  const isActive = activeProjectId === project.id;
   
   // Use mobile or desktop position based on screen size
   const position = isMobile ? project.mobilePosition : project.position;
-  const isActive = activeProjectId === project.id;
   
   useEffect(() => {
     // Entry animation - start from above and animate down
@@ -87,7 +86,6 @@ const ProjectPortal = ({
       // Otherwise, activate this project (which will deactivate any other)
       setActiveProjectId(project.id);
     }
-    setHovered(!hovered);
   };
   
   useFrame(({ clock }) => {
@@ -194,10 +192,10 @@ const ProjectPortals = () => {
   
   return (
     <group>
-      {/* 3D Text for "My Projects" label behind the project spheres */}
+      {/* 3D Text for "Projects" label behind the project spheres - bigger and higher position */}
       <Text
-        position={[0, 1.5, -3]}
-        fontSize={isMobile ? 0.8 : 1.2}
+        position={[0, 2.2, -3]} 
+        fontSize={isMobile ? 1.0 : 1.4} 
         color="#00FEFE"
         anchorX="center"
         anchorY="middle"
@@ -205,7 +203,7 @@ const ProjectPortals = () => {
         outlineWidth={0.02}
         outlineColor="#005a5a"
       >
-        My Projects
+        Projects
       </Text>
       
       {projects.map((project, index) => (
