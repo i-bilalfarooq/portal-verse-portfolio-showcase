@@ -1,9 +1,10 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, Html, useTexture } from '@react-three/drei';
+import { Text, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProjectData {
   id: string;
@@ -11,6 +12,7 @@ interface ProjectData {
   description: string;
   color: string;
   position: [number, number, number];
+  mobilePosition: [number, number, number];
   image: string;
 }
 
@@ -21,6 +23,7 @@ const projects: ProjectData[] = [
     description: 'AI-Based HTML and CSS Generator',
     color: '#4285F4', // Google blue
     position: [-2.5, 0, 0],
+    mobilePosition: [-1.8, 0, 0],
     image: '/placeholder.svg'
   },
   {
@@ -29,6 +32,7 @@ const projects: ProjectData[] = [
     description: 'E-Commerce Website for a watch brand',
     color: '#FBBC04', // Google yellow
     position: [0, 0, -2.5],
+    mobilePosition: [0, 0, -1.8],
     image: '/placeholder.svg'
   },
   {
@@ -37,28 +41,39 @@ const projects: ProjectData[] = [
     description: 'Blockchain-Based B2B Data Sharing Platform',
     color: '#34A853', // Google green
     position: [2.5, 0, 0],
+    mobilePosition: [1.8, 0, 0],
     image: '/placeholder.svg'
   }
 ];
 
-const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, animationDelay?: number }) => {
+const ProjectPortal = ({ 
+  project, 
+  animationDelay = 0,
+  isMobile 
+}: { 
+  project: ProjectData, 
+  animationDelay?: number,
+  isMobile: boolean
+}) => {
   const portalRef = useRef<THREE.Group>(null);
   const sphereRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
-  const texture = useTexture(project.image);
+  
+  // Use mobile or desktop position based on screen size
+  const position = isMobile ? project.mobilePosition : project.position;
   
   useEffect(() => {
     // Entry animation - start from above and animate down
     if (portalRef.current) {
       portalRef.current.position.y = 10;
       gsap.to(portalRef.current.position, {
-        y: project.position[1],
+        y: position[1],
         duration: 1.5,
         delay: animationDelay,
         ease: "elastic.out(1, 0.75)"
       });
     }
-  }, [animationDelay, project.position]);
+  }, [animationDelay, position]);
   
   useFrame(({ clock }) => {
     if (sphereRef.current) {
@@ -82,40 +97,42 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
     }
   });
   
+  const sphereSize = isMobile ? 0.6 : 0.8;
+  const fontSize = isMobile ? 0.15 : 0.2;
+  
   return (
     <group
       ref={portalRef}
-      position={[project.position[0], project.position[1], project.position[2]]}
+      position={[position[0], position[1], position[2]]}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
       {/* Project portal sphere */}
       <mesh ref={sphereRef} castShadow>
-        <sphereGeometry args={[0.8, 32, 32]} />
+        <sphereGeometry args={[sphereSize, 32, 32]} />
         <meshStandardMaterial 
           color={project.color} 
           metalness={0.6} 
           roughness={0.2} 
           emissive={project.color} 
           emissiveIntensity={hovered ? 0.8 : 0.3}
-          map={texture}
         />
         
         {/* Orbit rings */}
         <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1, 0.02, 16, 100]} />
+          <torusGeometry args={[sphereSize * 1.25, 0.02, 16, 100]} />
           <meshStandardMaterial color="#fff" transparent opacity={0.3} />
         </mesh>
         <mesh rotation={[0, 0, Math.PI / 2]}>
-          <torusGeometry args={[1.1, 0.02, 16, 100]} />
+          <torusGeometry args={[sphereSize * 1.35, 0.02, 16, 100]} />
           <meshStandardMaterial color="#00FEFE" transparent opacity={0.3} />
         </mesh>
       </mesh>
       
       {/* Project name always visible */}
       <Text
-        position={[0, 1.3, 0]}
-        fontSize={0.2}
+        position={[0, sphereSize * 1.6, 0]}
+        fontSize={fontSize}
         color="#00FEFE"
         anchorX="center"
         anchorY="middle"
@@ -128,22 +145,22 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
         <Html
           position={[0, 0, 0]}
           center
-          distanceFactor={10}
+          distanceFactor={isMobile ? 6 : 10}
           className="pointer-events-none"
         >
-          <div className="w-96 bg-gray-900/90 backdrop-blur-md p-4 rounded-md border border-[#00FEFE] text-white">
+          <div className={`${isMobile ? 'w-60' : 'w-96'} bg-gray-900/90 backdrop-blur-md p-3 rounded-md border border-[#00FEFE] text-white`}>
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-[#00FEFE]">{project.title}</h2>
+              <h2 className="text-lg font-bold text-[#00FEFE]">{project.title}</h2>
             </div>
             <img 
               src={project.image} 
               alt={project.title} 
-              className="w-full h-48 object-cover my-3 rounded"
+              className="w-full h-32 object-cover my-2 rounded"
             />
-            <p className="text-sm mb-2">{project.description}</p>
+            <p className="text-xs mb-2">{project.description}</p>
             <a 
               href={`/work`} 
-              className="inline-block bg-[#00FEFE] text-black px-4 py-2 rounded text-sm mt-2 pointer-events-auto hover:bg-[#FF00FF] hover:text-white transition-colors"
+              className="inline-block bg-[#00FEFE] text-black px-3 py-1 rounded text-xs mt-2 pointer-events-auto hover:bg-[#FF00FF] hover:text-white transition-colors"
             >
               View Project
             </a>
@@ -155,6 +172,8 @@ const ProjectPortal = ({ project, animationDelay = 0 }: { project: ProjectData, 
 };
 
 const ProjectPortals = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <group>
       {projects.map((project, index) => (
@@ -162,6 +181,7 @@ const ProjectPortals = () => {
           key={project.id} 
           project={project} 
           animationDelay={0.2 * index}
+          isMobile={isMobile}
         />
       ))}
     </group>

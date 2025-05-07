@@ -11,8 +11,8 @@ import Loading from '@/components/Loading';
 import * as THREE from 'three';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Register GSAP plugins
-gsap.registerPlugin();
+// Import the GSAP plugins
+import '@/lib/gsap-plugins';
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,12 +24,18 @@ const Home = () => {
   const isMobile = useIsMobile();
   
   useEffect(() => {
+    // Make sure screen is properly initialized
+    document.body.style.overflow = 'hidden';
+    
     // Simulate loading assets
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
     
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = '';
+    };
   }, []);
   
   const handleOpenGate = () => {
@@ -58,7 +64,7 @@ const Home = () => {
             gsap.to(cameraRef.current.position, {
               y: 0,
               // Position camera further back on mobile for better viewing
-              z: isMobile ? 8 : 5,
+              z: isMobile ? 9 : 5,
               duration: 2,
               ease: "power2.inOut",
               onComplete: () => {
@@ -118,12 +124,12 @@ const Home = () => {
       
       {showNavigation && (
         <nav className={`absolute ${isMobile ? 'bottom-8' : 'top-8'} left-1/2 transform -translate-x-1/2 z-10 animate-fade-in`}>
-          <div className={`flex ${isMobile ? 'flex-wrap justify-center gap-4' : 'space-x-8'} text-white`}>
-            <button className="text-[#00FEFE] hover:text-[#FF00FF] transition-colors">HOME</button>
-            <button className="hover:text-[#00FEFE] transition-colors" onClick={() => navigate('/work')}>WORK</button>
-            <button className="hover:text-[#00FEFE] transition-colors" onClick={() => navigate('/about')}>ABOUT</button>
-            <button className="hover:text-[#00FEFE] transition-colors" onClick={() => navigate('/manifesto')}>MANIFESTO</button>
-            <button className="hover:text-[#00FEFE] transition-colors" onClick={() => navigate('/contact')}>CONTACT</button>
+          <div className={`flex ${isMobile ? 'flex-wrap justify-center gap-3' : 'space-x-8'} text-white`}>
+            <button className="text-[#00FEFE] hover:text-[#FF00FF] transition-colors text-sm md:text-base">HOME</button>
+            <button className="hover:text-[#00FEFE] transition-colors text-sm md:text-base" onClick={() => navigate('/work')}>WORK</button>
+            <button className="hover:text-[#00FEFE] transition-colors text-sm md:text-base" onClick={() => navigate('/about')}>ABOUT</button>
+            <button className="hover:text-[#00FEFE] transition-colors text-sm md:text-base" onClick={() => navigate('/manifesto')}>MANIFESTO</button>
+            <button className="hover:text-[#00FEFE] transition-colors text-sm md:text-base" onClick={() => navigate('/contact')}>CONTACT</button>
           </div>
         </nav>
       )}

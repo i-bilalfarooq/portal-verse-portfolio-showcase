@@ -1,9 +1,10 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface GateProps {
   onOpen: () => void;
@@ -15,6 +16,16 @@ const Gate = ({ onOpen }: GateProps) => {
   const textRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [opening, setOpening] = useState(false);
+  const isMobile = useIsMobile();
+  
+  useEffect(() => {
+    // Make sure gate is properly positioned for mobile/desktop
+    if (leftGateRef.current && rightGateRef.current) {
+      const gateWidth = isMobile ? 1.5 : 2;
+      leftGateRef.current.position.x = -gateWidth/2;
+      rightGateRef.current.position.x = gateWidth/2;
+    }
+  }, [isMobile]);
   
   useFrame((state) => {
     if (textRef.current) {
@@ -36,15 +47,18 @@ const Gate = ({ onOpen }: GateProps) => {
     setOpening(true);
     
     if (leftGateRef.current && rightGateRef.current) {
+      // Determine distance to move based on screen size
+      const moveDistance = isMobile ? 2 : 3;
+      
       // Animate gate opening
       gsap.to(leftGateRef.current.position, {
-        x: -3,
+        x: -moveDistance,
         duration: 1.5,
         ease: "power2.inOut"
       });
       
       gsap.to(rightGateRef.current.position, {
-        x: 3,
+        x: moveDistance,
         duration: 1.5,
         ease: "power2.inOut",
       });
@@ -67,13 +81,25 @@ const Gate = ({ onOpen }: GateProps) => {
       
       // Hide text
       if (textRef.current) {
-        gsap.to(textRef.current, {
-          opacity: 0,
+        gsap.to(textRef.current.position, {
+          y: -2,
+          duration: 0.5
+        });
+        gsap.to(textRef.current.scale, {
+          x: 0,
+          y: 0,
+          z: 0,
           duration: 0.5
         });
       }
     }
   };
+  
+  // Adjust sizes for mobile
+  const gateWidth = isMobile ? 1.5 : 2;
+  const gateHeight = isMobile ? 3 : 4;
+  const fontSize = isMobile ? 0.18 : 0.25;
+  const smallFontSize = isMobile ? 0.12 : 0.15;
   
   return (
     <group
@@ -84,10 +110,10 @@ const Gate = ({ onOpen }: GateProps) => {
       {/* Left Gate Panel */}
       <mesh 
         ref={leftGateRef} 
-        position={[-1, 0, 0]} 
+        position={[-gateWidth/2, 0, 0]} 
         castShadow
       >
-        <planeGeometry args={[2, 4]} />
+        <planeGeometry args={[gateWidth, gateHeight]} />
         <meshStandardMaterial 
           color="#333" 
           metalness={0.8} 
@@ -97,15 +123,15 @@ const Gate = ({ onOpen }: GateProps) => {
         />
         
         {/* Gate Details - Left */}
-        <mesh position={[-0.5, 0, 0.01]}>
-          <planeGeometry args={[0.05, 3.6]} />
+        <mesh position={[-gateWidth/4, 0, 0.01]}>
+          <planeGeometry args={[0.05, gateHeight * 0.9]} />
           <meshStandardMaterial color="#00FEFE" metalness={0.9} roughness={0.1} />
         </mesh>
         
         {/* Circuit pattern on gate */}
-        {[...Array(8)].map((_, i) => (
-          <mesh key={`left-circuit-${i}`} position={[-0.6 + (i % 2) * 0.7, 1.5 - i * 0.4, 0.01]}>
-            <planeGeometry args={[0.4, 0.02]} />
+        {[...Array(6)].map((_, i) => (
+          <mesh key={`left-circuit-${i}`} position={[-(gateWidth/4) + (i % 2) * (gateWidth/3), gateHeight/3 - i * (gateHeight/8), 0.01]}>
+            <planeGeometry args={[gateWidth/5, 0.02]} />
             <meshStandardMaterial color="#00FEFE" metalness={0.9} roughness={0.1} />
           </mesh>
         ))}
@@ -114,10 +140,10 @@ const Gate = ({ onOpen }: GateProps) => {
       {/* Right Gate Panel */}
       <mesh 
         ref={rightGateRef} 
-        position={[1, 0, 0]} 
+        position={[gateWidth/2, 0, 0]} 
         castShadow
       >
-        <planeGeometry args={[2, 4]} />
+        <planeGeometry args={[gateWidth, gateHeight]} />
         <meshStandardMaterial 
           color="#333" 
           metalness={0.8} 
@@ -127,15 +153,15 @@ const Gate = ({ onOpen }: GateProps) => {
         />
         
         {/* Gate Details - Right */}
-        <mesh position={[0.5, 0, 0.01]}>
-          <planeGeometry args={[0.05, 3.6]} />
+        <mesh position={[gateWidth/4, 0, 0.01]}>
+          <planeGeometry args={[0.05, gateHeight * 0.9]} />
           <meshStandardMaterial color="#00FEFE" metalness={0.9} roughness={0.1} />
         </mesh>
         
         {/* Circuit pattern on gate */}
-        {[...Array(8)].map((_, i) => (
-          <mesh key={`right-circuit-${i}`} position={[-0.1 + (i % 2) * 0.7, 1.5 - i * 0.4, 0.01]}>
-            <planeGeometry args={[0.4, 0.02]} />
+        {[...Array(6)].map((_, i) => (
+          <mesh key={`right-circuit-${i}`} position={[-(gateWidth/8) + (i % 2) * (gateWidth/3), gateHeight/3 - i * (gateHeight/8), 0.01]}>
+            <planeGeometry args={[gateWidth/5, 0.02]} />
             <meshStandardMaterial color="#00FEFE" metalness={0.9} roughness={0.1} />
           </mesh>
         ))}
@@ -145,7 +171,7 @@ const Gate = ({ onOpen }: GateProps) => {
       <group ref={textRef} position={[0, 0.1, 0.2]}>
         <Text
           position={[0, 0, 0]}
-          fontSize={0.25}
+          fontSize={fontSize}
           color="#00FEFE"
           anchorX="center"
           anchorY="middle"
@@ -154,7 +180,7 @@ const Gate = ({ onOpen }: GateProps) => {
         </Text>
         <Text
           position={[0, -0.4, 0]}
-          fontSize={0.15}
+          fontSize={smallFontSize}
           color="#FF00FF"
           anchorX="center"
           anchorY="middle"

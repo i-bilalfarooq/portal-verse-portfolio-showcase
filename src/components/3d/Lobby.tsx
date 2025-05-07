@@ -13,7 +13,7 @@ const Lobby = () => {
   const isMobile = useIsMobile();
   
   // Create particles for the atmosphere - reduce count for mobile
-  const particlesCount = isMobile ? 250 : 500;
+  const particlesCount = isMobile ? 150 : 500;
   const positions = new Float32Array(particlesCount * 3);
   
   for (let i = 0; i < particlesCount; i++) {
@@ -55,13 +55,10 @@ const Lobby = () => {
     if (particlesRef.current) {
       particlesRef.current.rotation.y = clock.getElapsedTime() * 0.05;
       
-      // Add subtle movement to particles
-      const positions = particlesRef.current.geometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < particlesCount; i++) {
-        const i3 = i * 3;
-        positions[i3 + 1] += Math.sin(clock.getElapsedTime() * 0.2 + i * 0.1) * 0.001;
-      }
-      particlesRef.current.geometry.attributes.position.needsUpdate = true;
+      // Gentle movement of particles without resizing the buffer
+      const phase = clock.getElapsedTime() * 0.2;
+      particlesRef.current.rotation.y = phase * 0.05;
+      particlesRef.current.rotation.x = Math.sin(phase * 0.3) * 0.02;
     }
     
     // Add subtle movement to the entire lobby
@@ -71,9 +68,9 @@ const Lobby = () => {
   });
   
   // Scale for mobile
-  const floorScale = isMobile ? 20 : 30;
-  const platformRadius = isMobile ? 4 : 5;
-  const platformRadiusBottom = isMobile ? 4.5 : 5.5;
+  const floorScale = isMobile ? 15 : 30;
+  const platformRadius = isMobile ? 3 : 5;
+  const platformRadiusBottom = isMobile ? 3.5 : 5.5;
   
   return (
     <group ref={lobbyRef}>
@@ -105,7 +102,7 @@ const Lobby = () => {
         </mesh>
       </mesh>
       
-      {/* Ambient particles */}
+      {/* Ambient particles - pre-allocate buffer to prevent resizing */}
       <points ref={particlesRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -113,10 +110,11 @@ const Lobby = () => {
             count={particlesCount}
             array={positions}
             itemSize={3}
+            usage={THREE.StaticDrawUsage}
           />
         </bufferGeometry>
         <pointsMaterial
-          size={isMobile ? 0.07 : 0.05} // Slightly larger on mobile to be more visible
+          size={isMobile ? 0.09 : 0.05} // Slightly larger on mobile to be more visible
           color="#00FEFE"
           transparent
           opacity={0.8}
