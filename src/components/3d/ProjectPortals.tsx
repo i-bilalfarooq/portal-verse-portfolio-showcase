@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Html } from '@react-three/drei';
@@ -58,6 +57,8 @@ const ProjectPortal = ({
   const portalRef = useRef<THREE.Group>(null);
   const sphereRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
+  const [detailsVisible, setDetailsVisible] = useState(false);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Use mobile or desktop position based on screen size
   const position = isMobile ? project.mobilePosition : project.position;
@@ -74,6 +75,78 @@ const ProjectPortal = ({
       });
     }
   }, [animationDelay, position]);
+  
+  useEffect(() => {
+    // Cleanup any timeout when component unmounts
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handlePointerOver = () => {
+    // For desktop: Start hover state
+    if (!isMobile) {
+      setHovered(true);
+      
+      // Clear any existing timeout
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+      
+      // Show details after a very brief delay to prevent flickering
+      setTimeout(() => {
+        setDetailsVisible(true);
+      }, 50);
+    }
+  };
+
+  const handlePointerOut = () => {
+    // For desktop: Only exit hover after a delay to improve UX
+    if (!isMobile) {
+      setHovered(false);
+      
+      // Set a timeout before hiding details
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      
+      hoverTimeoutRef.current = setTimeout(() => {
+        setDetailsVisible(false);
+      }, 300); // Delay hiding details to give user time to move to the card
+    }
+  };
+  
+  // Handle click for mobile
+  const handleClick = () => {
+    if (isMobile) {
+      setDetailsVisible(!detailsVisible);
+      setHovered(!hovered);
+    }
+  };
+  
+  // Handle when user hovers over the details card itself
+  const handleCardHover = (entering: boolean) => {
+    if (!isMobile) {
+      if (entering) {
+        // Keep details visible when hovering over the card
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+          hoverTimeoutRef.current = null;
+        }
+        setHovered(true);
+        setDetailsVisible(true);
+      } else {
+        // Set timeout to hide after leaving the card
+        hoverTimeoutRef.current = setTimeout(() => {
+          setDetailsVisible(false);
+          setHovered(false);
+        }, 300);
+      }
+    }
+  };
   
   useFrame(({ clock }) => {
     if (sphereRef.current) {
@@ -104,8 +177,9 @@ const ProjectPortal = ({
     <group
       ref={portalRef}
       position={[position[0], position[1], position[2]]}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+      onClick={handleClick}
     >
       {/* Project portal sphere */}
       <mesh ref={sphereRef} castShadow>
@@ -140,15 +214,20 @@ const ProjectPortal = ({
         {project.title}
       </Text>
       
-      {/* Project details on hover */}
-      {hovered && (
+      {/* Project details on hover (desktop) or tap (mobile) */}
+      {detailsVisible && (
         <Html
           position={[0, 0, 0]}
           center
           distanceFactor={isMobile ? 6 : 10}
-          className="pointer-events-none"
+          className="pointer-events-auto"
+          style={{ pointerEvents: 'all' }}
+          onPointerOver={() => handleCardHover(true)}
+          onPointerOut={() => handleCardHover(false)}
         >
-          <div className={`${isMobile ? 'w-60' : 'w-96'} bg-gray-900/90 backdrop-blur-md p-3 rounded-md border border-[#00FEFE] text-white`}>
+          <div 
+            className={`${isMobile ? 'w-64' : 'w-96'} bg-gray-900/90 backdrop-blur-md p-3 rounded-md border border-[#00FEFE] text-white`}
+          >
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-bold text-[#00FEFE]">{project.title}</h2>
             </div>
@@ -159,8 +238,8 @@ const ProjectPortal = ({
             />
             <p className="text-xs mb-2">{project.description}</p>
             <a 
-              href={`/work`} 
-              className="inline-block bg-[#00FEFE] text-black px-3 py-1 rounded text-xs mt-2 pointer-events-auto hover:bg-[#FF00FF] hover:text-white transition-colors"
+              href={`/work/${project.id}`} 
+              className="inline-block bg-[#00FEFE] text-black px-3 py-2 rounded text-xs mt-2 hover:bg-[#FF00FF] hover:text-white transition-colors w-full text-center"
             >
               View Project
             </a>
