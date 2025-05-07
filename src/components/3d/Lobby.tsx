@@ -3,15 +3,17 @@ import React, { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Lobby = () => {
   const lobbyRef = useRef<THREE.Group>(null);
   const particlesRef = useRef<THREE.Points>(null);
   const floorRef = useRef<THREE.Mesh>(null);
   const platformRef = useRef<THREE.Mesh>(null);
+  const isMobile = useIsMobile();
   
-  // Create particles for the atmosphere
-  const particlesCount = 500;
+  // Create particles for the atmosphere - reduce count for mobile
+  const particlesCount = isMobile ? 250 : 500;
   const positions = new Float32Array(particlesCount * 3);
   
   for (let i = 0; i < particlesCount; i++) {
@@ -68,6 +70,11 @@ const Lobby = () => {
     }
   });
   
+  // Scale for mobile
+  const floorScale = isMobile ? 20 : 30;
+  const platformRadius = isMobile ? 4 : 5;
+  const platformRadiusBottom = isMobile ? 4.5 : 5.5;
+  
   return (
     <group ref={lobbyRef}>
       {/* Floor */}
@@ -77,7 +84,7 @@ const Lobby = () => {
         position={[0, -2, 0]} 
         receiveShadow
       >
-        <planeGeometry args={[30, 30]} />
+        <planeGeometry args={[floorScale, floorScale]} />
         <meshStandardMaterial 
           color="#111" 
           metalness={0.8} 
@@ -88,7 +95,7 @@ const Lobby = () => {
         
         {/* Grid pattern on floor */}
         <mesh rotation={[0, 0, 0]} position={[0, 0.01, 0]}>
-          <planeGeometry args={[30, 30]} />
+          <planeGeometry args={[floorScale, floorScale]} />
           <meshBasicMaterial 
             transparent
             opacity={0.3}
@@ -109,7 +116,7 @@ const Lobby = () => {
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.05}
+          size={isMobile ? 0.07 : 0.05} // Slightly larger on mobile to be more visible
           color="#00FEFE"
           transparent
           opacity={0.8}
@@ -124,7 +131,7 @@ const Lobby = () => {
         castShadow 
         receiveShadow
       >
-        <cylinderGeometry args={[5, 5.5, 0.5, 32]} />
+        <cylinderGeometry args={[platformRadius, platformRadiusBottom, 0.5, 32]} />
         <meshStandardMaterial 
           color="#333" 
           metalness={0.7} 
@@ -135,7 +142,7 @@ const Lobby = () => {
         
         {/* Platform edge glow */}
         <mesh position={[0, 0.26, 0]}>
-          <torusGeometry args={[5, 0.05, 16, 100]} />
+          <torusGeometry args={[platformRadius, 0.05, 16, 100]} />
           <meshStandardMaterial 
             color="#00FEFE"
             emissive="#00FEFE"
