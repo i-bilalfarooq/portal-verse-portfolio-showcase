@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Html } from '@react-three/drei';
@@ -78,7 +79,10 @@ const ProjectPortal = ({
     }
   }, [animationDelay, position]);
   
-  const handleClick = () => {
+  const handleClick = (event: any) => {
+    // Stop event from bubbling up
+    event.stopPropagation();
+    
     // If this project is already active, deactivate it
     if (isActive) {
       setActiveProjectId(null);
@@ -163,6 +167,7 @@ const ProjectPortal = ({
         >
           <div 
             className={`${isMobile ? 'w-64' : 'w-96'} bg-gray-900/90 backdrop-blur-md p-3 rounded-md border border-[#00FEFE] text-white`}
+            onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
           >
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-bold text-[#00FEFE]">{project.title}</h2>
@@ -190,8 +195,15 @@ const ProjectPortals = () => {
   const isMobile = useIsMobile();
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   
+  // Handle clicks outside projects to close details
+  const handleBackgroundClick = () => {
+    if (activeProjectId) {
+      setActiveProjectId(null);
+    }
+  };
+  
   return (
-    <group>
+    <group onClick={handleBackgroundClick}>
       {/* 3D Text for "Projects" label - moved higher and further back */}
       <Text
         position={[0, 3.0, -4.5]} 
