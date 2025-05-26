@@ -192,9 +192,9 @@ const ProjectPortals = () => {
   
   return (
     <group>
-      {/* 3D Text for "Projects" label behind the project spheres - bigger and higher position */}
+      {/* 3D Text for "Projects" label - moved higher and further back */}
       <Text
-        position={[0, 2.2, -3]} 
+        position={[0, 3.0, -4.5]} 
         fontSize={isMobile ? 1.0 : 1.4} 
         color="#00FEFE"
         anchorX="center"
