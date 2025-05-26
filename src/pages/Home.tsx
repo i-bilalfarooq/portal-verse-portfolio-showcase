@@ -122,7 +122,7 @@ const Home = () => {
       {showNavigation && (
         <>
           {!isMobile && (
-            <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 z-10 animate-fade-in">
+            <nav className="fixed top-4 left-0 w-full z-10 flex justify-center animate-fade-in">
               <div className="flex space-x-8 bg-black/70 backdrop-blur-md px-6 py-3 rounded-full shadow-[0_0_10px_#00FEFE] border border-[#00FEFE]/30">
                 <button className="text-[#00FEFE] hover:text-[#FF00FF] transition-all text-base relative group">
                   HOME
