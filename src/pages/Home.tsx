@@ -108,7 +108,7 @@ const Home = () => {
               enablePan={false}
               maxPolarAngle={Math.PI / 2}
               minPolarAngle={Math.PI / 3}
-              rotateSpeed={isMobile ? 0.3 : 0.5}  // Reduce rotation speed on mobile
+              rotateSpeed={isMobile ? 0.3 : 0.5}
               enableDamping
               dampingFactor={0.1}
             />
@@ -118,7 +118,7 @@ const Home = () => {
           ref={cameraRef} 
           makeDefault 
           position={[0, 0, 5]} 
-          fov={isMobile ? 75 : 70} // Adjusted FOV
+          fov={isMobile ? 75 : 70}
         />
       </Canvas>
       
