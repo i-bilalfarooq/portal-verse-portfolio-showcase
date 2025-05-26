@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Html } from '@react-three/drei';
@@ -20,7 +21,7 @@ const projects: ProjectData[] = [
     id: 'htmllab',
     title: 'HTMLLab',
     description: 'AI-Based HTML and CSS Generator',
-    color: '#4285F4', // Google blue
+    color: '#4285F4',
     position: [-2.5, 0, 0],
     mobilePosition: [-1.8, 0, 0],
     image: '/placeholder.svg'
@@ -29,7 +30,7 @@ const projects: ProjectData[] = [
     id: 'waqt',
     title: 'Waqt',
     description: 'E-Commerce Website for a watch brand',
-    color: '#FBBC04', // Google yellow
+    color: '#FBBC04',
     position: [0, 0, -2.5],
     mobilePosition: [0, 0, -1.8],
     image: '/placeholder.svg'
@@ -38,7 +39,7 @@ const projects: ProjectData[] = [
     id: 'datasouk',
     title: 'DataSouk',
     description: 'Blockchain-Based B2B Data Sharing Platform',
-    color: '#34A853', // Google green
+    color: '#34A853',
     position: [2.5, 0, 0],
     mobilePosition: [1.8, 0, 0],
     image: '/placeholder.svg'
@@ -62,11 +63,9 @@ const ProjectPortal = ({
   const sphereRef = useRef<THREE.Mesh>(null);
   const isActive = activeProjectId === project.id;
   
-  // Use mobile or desktop position based on screen size
   const position = isMobile ? project.mobilePosition : project.position;
   
   useEffect(() => {
-    // Entry animation - start from above and animate down
     if (portalRef.current) {
       portalRef.current.position.y = 10;
       gsap.to(portalRef.current.position, {
@@ -78,22 +77,19 @@ const ProjectPortal = ({
     }
   }, [animationDelay, position]);
   
-  const handleClick = () => {
-    // If this project is already active, deactivate it
+  const handleClick = (e: any) => {
+    e.stopPropagation();
     if (isActive) {
       setActiveProjectId(null);
     } else {
-      // Otherwise, activate this project (which will deactivate any other)
       setActiveProjectId(project.id);
     }
   };
   
   useFrame(({ clock }) => {
     if (sphereRef.current) {
-      // Continuous rotation
       sphereRef.current.rotation.y = clock.getElapsedTime() * 0.2;
       
-      // Scale effect for active project
       if (isActive) {
         sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
           sphereRef.current.scale.x,
@@ -119,7 +115,6 @@ const ProjectPortal = ({
       position={[position[0], position[1], position[2]]}
       onClick={handleClick}
     >
-      {/* Project portal sphere */}
       <mesh ref={sphereRef} castShadow>
         <sphereGeometry args={[sphereSize, 32, 32]} />
         <meshStandardMaterial 
@@ -130,7 +125,6 @@ const ProjectPortal = ({
           emissiveIntensity={isActive ? 0.8 : 0.3}
         />
         
-        {/* Orbit rings */}
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[sphereSize * 1.25, 0.02, 16, 100]} />
           <meshStandardMaterial color="#fff" transparent opacity={0.3} />
@@ -141,7 +135,6 @@ const ProjectPortal = ({
         </mesh>
       </mesh>
       
-      {/* Project name always visible */}
       <Text
         position={[0, sphereSize * 1.6, 0]}
         fontSize={fontSize}
@@ -152,7 +145,6 @@ const ProjectPortal = ({
         {project.title}
       </Text>
       
-      {/* Project details on click */}
       {isActive && (
         <Html
           position={[0, 0, 0]}
@@ -163,6 +155,7 @@ const ProjectPortal = ({
         >
           <div 
             className={`${isMobile ? 'w-64' : 'w-96'} bg-gray-900/90 backdrop-blur-md p-3 rounded-md border border-[#00FEFE] text-white`}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-bold text-[#00FEFE]">{project.title}</h2>
@@ -176,6 +169,7 @@ const ProjectPortal = ({
             <a 
               href={`/work/${project.id}`} 
               className="inline-block bg-[#00FEFE] text-black px-3 py-2 rounded text-xs mt-2 hover:bg-[#FF00FF] hover:text-white transition-colors w-full text-center"
+              onClick={(e) => e.stopPropagation()}
             >
               View Project
             </a>
@@ -190,12 +184,23 @@ const ProjectPortals = () => {
   const isMobile = useIsMobile();
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   
+  useEffect(() => {
+    const handleCloseDetails = () => {
+      setActiveProjectId(null);
+    };
+    
+    window.addEventListener('closeProjectDetails', handleCloseDetails);
+    
+    return () => {
+      window.removeEventListener('closeProjectDetails', handleCloseDetails);
+    };
+  }, []);
+  
   return (
     <group>
-      {/* 3D Text for "Projects" label behind the project spheres - bigger and higher position */}
       <Text
-        position={[0, 2.2, -3]} 
-        fontSize={isMobile ? 1.0 : 1.4} 
+        position={[0, 1.8, -3]} 
+        fontSize={isMobile ? 0.8 : 1.2} 
         color="#00FEFE"
         anchorX="center"
         anchorY="middle"
