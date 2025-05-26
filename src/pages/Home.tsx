@@ -1,9 +1,8 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { gsap } from 'gsap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Gate from '@/components/3d/Gate';
 import Lobby from '@/components/3d/Lobby';
 import ProjectPortals from '@/components/3d/ProjectPortals';
@@ -23,9 +22,16 @@ const Home = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   
   useEffect(() => {
+    // Reset gate state on page refresh
+    if (location.key === 'default') {
+      setGateOpened(false);
+      setShowNavigation(false);
+    }
+    
     // Make sure screen is properly initialized
     document.body.style.overflow = 'hidden';
     
@@ -38,17 +44,14 @@ const Home = () => {
       clearTimeout(timer);
       document.body.style.overflow = '';
     };
-  }, []);
+  }, [location.key]);
   
   const handleOpenGate = () => {
-    // Disable controls during transition
     if (controlsRef.current) {
       controlsRef.current.enabled = false;
     }
     
-    // Animate camera movement through the gate
     if (cameraRef.current) {
-      // First stage: move through the gate
       gsap.to(cameraRef.current.position, {
         z: -2,
         duration: 2,
@@ -56,26 +59,20 @@ const Home = () => {
         onComplete: () => {
           setGateOpened(true);
           
-          // Second stage: animate camera from far away to the lobby position
           if (cameraRef.current) {
-            // Set camera to a position far away but looking at the lobby
             cameraRef.current.position.set(0, 30, 30);
             cameraRef.current.lookAt(0, 0, 0);
             
-            // Animate camera moving in towards the lobby - push back further for mobile
             gsap.to(cameraRef.current.position, {
-              y: 0,
-              // Push camera further back for mobile to see platform and all projects
-              z: isMobile ? 9 : 5,
+              y: isMobile ? 2 : 0,
+              z: isMobile ? 12 : 5,
               duration: 2,
               ease: "power2.inOut",
               onComplete: () => {
-                // Show navigation bar with a slight delay
                 setTimeout(() => {
                   setShowNavigation(true);
                 }, 300);
                 
-                // Re-enable controls after camera is positioned
                 if (controlsRef.current) {
                   setTimeout(() => {
                     controlsRef.current.enabled = true;
@@ -126,7 +123,6 @@ const Home = () => {
       
       {showNavigation && (
         <>
-          {/* Desktop Navigation - Top Center */}
           {!isMobile && (
             <nav className="fixed top-8 left-1/2 transform -translate-x-1/2 z-10 animate-fade-in">
               <div className="flex space-x-8 bg-black/70 backdrop-blur-md px-6 py-3 rounded-full shadow-[0_0_10px_#00FEFE] border border-[#00FEFE]/30">
@@ -166,7 +162,6 @@ const Home = () => {
             </nav>
           )}
 
-          {/* Mobile Menu Button - Top Right */}
           {isMobile && (
             <button 
               className="fixed top-6 right-6 z-20 bg-black/70 backdrop-blur-md p-3 rounded-full shadow-[0_0_10px_#00FEFE] border border-[#00FEFE]/30 text-[#00FEFE] hover:text-[#FF00FF] transition-all animate-fade-in"
@@ -176,7 +171,6 @@ const Home = () => {
             </button>
           )}
 
-          {/* Mobile Menu - Full Screen Overlay */}
           {isMobile && mobileMenuOpen && (
             <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-15 flex flex-col items-center justify-center animate-fade-in">
               <div className="flex flex-col space-y-8 text-center">

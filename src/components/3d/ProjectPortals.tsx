@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Html } from '@react-three/drei';
@@ -14,6 +13,7 @@ interface ProjectData {
   position: [number, number, number];
   mobilePosition: [number, number, number];
   image: string;
+  link: string;
 }
 
 const projects: ProjectData[] = [
@@ -22,27 +22,40 @@ const projects: ProjectData[] = [
     title: 'HTMLLab',
     description: 'AI-Based HTML and CSS Generator',
     color: '#4285F4', // Google blue
-    position: [-2.5, 0, 0],
-    mobilePosition: [-1.8, 0, 0],
-    image: '/placeholder.svg'
+    position: [-3, 0, 0],
+    mobilePosition: [-2.2, 0, 0],
+    image: '/placeholder.svg',
+    link: 'https://htmllab.run.place/'
   },
   {
     id: 'waqt',
     title: 'Waqt',
     description: 'E-Commerce Website for a watch brand',
     color: '#FBBC04', // Google yellow
-    position: [0, 0, -2.5],
-    mobilePosition: [0, 0, -1.8],
-    image: '/placeholder.svg'
+    position: [-1, 0, -3],
+    mobilePosition: [-0.7, 0, -2.2],
+    image: '/placeholder.svg',
+    link: 'https://waqt.publicvm.com/'
   },
   {
     id: 'datasouk',
     title: 'DataSouk',
     description: 'Blockchain-Based B2B Data Sharing Platform',
     color: '#34A853', // Google green
-    position: [2.5, 0, 0],
-    mobilePosition: [1.8, 0, 0],
-    image: '/placeholder.svg'
+    position: [1, 0, -3],
+    mobilePosition: [0.7, 0, -2.2],
+    image: '/placeholder.svg',
+    link: 'https://datasouk.great-site.net/?i=1'
+  },
+  {
+    id: 'mindfulai',
+    title: 'MindfulAI',
+    description: 'AI-Powered Mental Health Platform',
+    color: '#EA4335', // Google red
+    position: [3, 0, 0],
+    mobilePosition: [2.2, 0, 0],
+    image: '/placeholder.svg',
+    link: 'https://mindfulai.infy.uk/?i=1'
   }
 ];
 
@@ -80,24 +93,14 @@ const ProjectPortal = ({
   }, [animationDelay, position]);
   
   const handleClick = (event: any) => {
-    // Stop event from bubbling up
     event.stopPropagation();
-    
-    // If this project is already active, deactivate it
-    if (isActive) {
-      setActiveProjectId(null);
-    } else {
-      // Otherwise, activate this project (which will deactivate any other)
-      setActiveProjectId(project.id);
-    }
+    setActiveProjectId(isActive ? null : project.id);
   };
   
   useFrame(({ clock }) => {
     if (sphereRef.current) {
-      // Continuous rotation
       sphereRef.current.rotation.y = clock.getElapsedTime() * 0.2;
       
-      // Scale effect for active project
       if (isActive) {
         sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
           sphereRef.current.scale.x,
@@ -123,7 +126,6 @@ const ProjectPortal = ({
       position={[position[0], position[1], position[2]]}
       onClick={handleClick}
     >
-      {/* Project portal sphere */}
       <mesh ref={sphereRef} castShadow>
         <sphereGeometry args={[sphereSize, 32, 32]} />
         <meshStandardMaterial 
@@ -134,7 +136,6 @@ const ProjectPortal = ({
           emissiveIntensity={isActive ? 0.8 : 0.3}
         />
         
-        {/* Orbit rings */}
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[sphereSize * 1.25, 0.02, 16, 100]} />
           <meshStandardMaterial color="#fff" transparent opacity={0.3} />
@@ -145,7 +146,6 @@ const ProjectPortal = ({
         </mesh>
       </mesh>
       
-      {/* Project name always visible */}
       <Text
         position={[0, sphereSize * 1.6, 0]}
         fontSize={fontSize}
@@ -156,7 +156,6 @@ const ProjectPortal = ({
         {project.title}
       </Text>
       
-      {/* Project details on click */}
       {isActive && (
         <Html
           position={[0, 0, 0]}
@@ -167,7 +166,7 @@ const ProjectPortal = ({
         >
           <div 
             className={`${isMobile ? 'w-64' : 'w-96'} bg-gray-900/90 backdrop-blur-md p-3 rounded-md border border-[#00FEFE] text-white`}
-            onClick={(e) => e.stopPropagation()} // Prevent clicks inside the modal from closing it
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-bold text-[#00FEFE]">{project.title}</h2>
@@ -179,7 +178,9 @@ const ProjectPortal = ({
             />
             <p className="text-xs mb-2">{project.description}</p>
             <a 
-              href={`/work/${project.id}`} 
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block bg-[#00FEFE] text-black px-3 py-2 rounded text-xs mt-2 hover:bg-[#FF00FF] hover:text-white transition-colors w-full text-center"
             >
               View Project
@@ -195,7 +196,6 @@ const ProjectPortals = () => {
   const isMobile = useIsMobile();
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   
-  // Handle clicks outside projects to close details
   const handleBackgroundClick = () => {
     if (activeProjectId) {
       setActiveProjectId(null);
@@ -204,9 +204,8 @@ const ProjectPortals = () => {
   
   return (
     <group onClick={handleBackgroundClick}>
-      {/* 3D Text for "Projects" label - moved higher and further back */}
       <Text
-        position={[0, 3.0, -4.5]} 
+        position={[0, 3.5, -5]} 
         fontSize={isMobile ? 1.0 : 1.4} 
         color="#00FEFE"
         anchorX="center"

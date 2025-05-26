@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -39,6 +38,14 @@ const projects: Project[] = [
     technologies: ['Blockchain', 'React', 'Node.js', 'Kyber', 'Dilithium'],
     image: '/placeholder.svg',
     link: 'https://datasouk.great-site.net/?i=1'
+  },
+  {
+    id: 'mindfulai',
+    title: 'MindfulAI',
+    description: 'An AI-Powered Mental Health Platform providing personalized support and resources for mental wellbeing.',
+    technologies: ['AI', 'React', 'Node.js', 'Machine Learning', 'NLP'],
+    image: '/placeholder.svg',
+    link: 'https://mindfulai.infy.uk/?i=1'
   }
 ];
 
@@ -63,7 +70,7 @@ const Work = () => {
         {projects.map((project) => (
           <Card 
             key={project.id}
-            className="bg-gray-800 border-gray-700 hover:border-[#00FEFE] transition-all duration-300 overflow-hidden"
+            className="bg-gray-800 border-gray-700 hover:border-[#00FEFE] transition-all duration-300 overflow-hidden cursor-pointer"
             onClick={() => setActiveProject(project)}
           >
             <img 
@@ -87,8 +94,14 @@ const Work = () => {
       </div>
       
       {activeProject && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-4">
-          <Card className="bg-gray-800 border-gray-700 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-4"
+          onClick={() => setActiveProject(null)}
+        >
+          <Card 
+            className="bg-gray-800 border-gray-700 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Button 
               variant="ghost" 
               className="text-gray-400 hover:text-white absolute top-2 right-2 z-10"
@@ -118,13 +131,14 @@ const Work = () => {
                 ))}
               </div>
               
-              <Button 
-                className="w-full bg-[#00FEFE] text-gray-900 hover:bg-[#FF00FF] hover:text-white"
-                onClick={() => window.open(activeProject.link, '_blank')}
-                size={isMobile ? "sm" : "default"}
+              <a 
+                href={activeProject.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-[#00FEFE] text-gray-900 hover:bg-[#FF00FF] hover:text-white transition-colors text-center px-3 py-2 rounded text-sm md:text-base"
               >
                 Visit Project
-              </Button>
+              </a>
             </div>
           </Card>
         </div>
