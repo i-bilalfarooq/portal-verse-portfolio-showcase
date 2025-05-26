@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -43,7 +42,7 @@ const Lobby = () => {
       platformRef.current.position.z = 30;
       
       gsap.to(platformRef.current.position, {
-        y: -1.5,
+        y: -1,
         z: 0,
         duration: 2.3,
         ease: "power2.out"
@@ -55,13 +54,11 @@ const Lobby = () => {
     if (particlesRef.current) {
       particlesRef.current.rotation.y = clock.getElapsedTime() * 0.05;
       
-      // Gentle movement of particles without resizing the buffer
       const phase = clock.getElapsedTime() * 0.2;
       particlesRef.current.rotation.y = phase * 0.05;
       particlesRef.current.rotation.x = Math.sin(phase * 0.3) * 0.02;
     }
     
-    // Add subtle movement to the entire lobby
     if (lobbyRef.current) {
       lobbyRef.current.position.y = Math.sin(clock.getElapsedTime() * 0.3) * 0.05;
     }
@@ -69,8 +66,8 @@ const Lobby = () => {
   
   // Scale for mobile
   const floorScale = isMobile ? 15 : 30;
-  const platformRadius = isMobile ? 3 : 5;
-  const platformRadiusBottom = isMobile ? 3.5 : 5.5;
+  const platformRadius = isMobile ? 4 : 6;
+  const platformRadiusBottom = isMobile ? 4.5 : 6.5;
   
   return (
     <group ref={lobbyRef}>
@@ -102,7 +99,7 @@ const Lobby = () => {
         </mesh>
       </mesh>
       
-      {/* Ambient particles - pre-allocate buffer to prevent resizing */}
+      {/* Ambient particles */}
       <points ref={particlesRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -114,7 +111,7 @@ const Lobby = () => {
           />
         </bufferGeometry>
         <pointsMaterial
-          size={isMobile ? 0.09 : 0.05} // Slightly larger on mobile to be more visible
+          size={isMobile ? 0.09 : 0.05}
           color="#00FEFE"
           transparent
           opacity={0.8}
@@ -125,7 +122,7 @@ const Lobby = () => {
       {/* Center platform */}
       <mesh 
         ref={platformRef} 
-        position={[0, -1.5, 0]} 
+        position={[0, -1, 0]} 
         castShadow 
         receiveShadow
       >
