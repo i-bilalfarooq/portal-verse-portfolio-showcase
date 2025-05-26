@@ -124,15 +124,6 @@ const ProjectPortal = ({
           emissive={project.color} 
           emissiveIntensity={isActive ? 0.8 : 0.3}
         />
-        
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[sphereSize * 1.25, 0.02, 16, 100]} />
-          <meshStandardMaterial color="#fff" transparent opacity={0.3} />
-        </mesh>
-        <mesh rotation={[0, 0, Math.PI / 2]}>
-          <torusGeometry args={[sphereSize * 1.35, 0.02, 16, 100]} />
-          <meshStandardMaterial color="#00FEFE" transparent opacity={0.3} />
-        </mesh>
       </mesh>
       
       <Text
@@ -199,8 +190,8 @@ const ProjectPortals = () => {
   return (
     <group>
       <Text
-        position={[0, 1.8, -3]} 
-        fontSize={isMobile ? 0.8 : 1.2} 
+        position={[0, 2.5, -3]} 
+        fontSize={isMobile ? 1.0 : 1.4} 
         color="#00FEFE"
         anchorX="center"
         anchorY="middle"

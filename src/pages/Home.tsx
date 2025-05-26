@@ -81,7 +81,7 @@ const Home = () => {
             gsap.to(cameraRef.current.position, {
               y: 0,
               // Position camera better for mobile
-              z: isMobile ? 8 : 5, // Adjusted further back for mobile to see all projects
+              z: isMobile ? 6 : 5, // Adjusted for mobile to see all projects
               duration: 2,
               ease: "power2.inOut",
               onComplete: () => {
@@ -145,12 +145,12 @@ const Home = () => {
       </Canvas>
       
       {showNavigation && (
-        <nav className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 animate-fade-in">
+        <nav className="absolute top-6 left-1/2 transform -translate-x-1/2 z-10 animate-fade-in">
           {isMobile ? (
             <div className="relative">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="flex items-center gap-2 bg-black/80 backdrop-blur-md px-6 py-3 rounded-full 
+                className="flex items-center gap-2 bg-black/90 backdrop-blur-md px-6 py-3 rounded-full 
                          shadow-[0_0_20px_#00FEFE] border-2 border-[#00FEFE]/50 text-[#00FEFE] 
                          hover:shadow-[0_0_30px_#00FEFE] transition-all duration-300 animate-glow"
               >
@@ -203,7 +203,7 @@ const Home = () => {
               )}
             </div>
           ) : (
-            <div className="flex space-x-8 bg-black/80 backdrop-blur-md px-8 py-4 rounded-full 
+            <div className="flex space-x-8 bg-black/90 backdrop-blur-md px-8 py-4 rounded-full 
                            shadow-[0_0_20px_#00FEFE] border-2 border-[#00FEFE]/50 animate-glow">
               <button className="text-[#00FEFE] hover:text-[#FF00FF] transition-all text-base relative group">
                 HOME
@@ -242,11 +242,13 @@ const Home = () => {
         </nav>
       )}
       
-      {/* Click outside overlay to close project details */}
+      {/* Click outside overlay to close project details and mobile menu */}
       {showNavigation && (
         <div 
           className="absolute inset-0 z-0"
           onClick={() => {
+            // Close mobile menu if open
+            setMobileMenuOpen(false);
             // This will trigger the global click handler in ProjectPortals
             const event = new CustomEvent('closeProjectDetails');
             window.dispatchEvent(event);
