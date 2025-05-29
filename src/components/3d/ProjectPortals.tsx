@@ -24,7 +24,7 @@ const projects: ProjectData[] = [
     color: '#4285F4', // Google blue
     position: [-3, 0, 0],
     mobilePosition: [-2.2, 0, 0],
-    image: '/placeholder.svg',
+    image: '/HTMLLAB.png',
     link: 'https://htmllab.run.place/'
   },
   {
@@ -32,9 +32,9 @@ const projects: ProjectData[] = [
     title: 'Waqt',
     description: 'E-Commerce Website for a watch brand',
     color: '#FBBC04', // Google yellow
-    position: [-1, 0, -3],
+    position: [-1.2, 0, -2],
     mobilePosition: [-0.7, 0, -2.2],
-    image: '/placeholder.svg',
+    image: '/WAQT.png',
     link: 'https://waqt.publicvm.com/'
   },
   {
@@ -42,9 +42,9 @@ const projects: ProjectData[] = [
     title: 'DataSouk',
     description: 'Blockchain-Based B2B Data Sharing Platform',
     color: '#34A853', // Google green
-    position: [1, 0, -3],
+    position: [1.2, 0, -2],
     mobilePosition: [0.7, 0, -2.2],
-    image: '/placeholder.svg',
+    image: '/DATASOUQ.png',
     link: 'https://datasouk.great-site.net/?i=1'
   },
   {
@@ -54,7 +54,7 @@ const projects: ProjectData[] = [
     color: '#EA4335', // Google red
     position: [3, 0, 0],
     mobilePosition: [2.2, 0, 0],
-    image: '/placeholder.svg',
+    image: '/MindfulAI.png',
     link: 'https://mindfulai.infy.uk/?i=1'
   }
 ];
@@ -76,11 +76,9 @@ const ProjectPortal = ({
   const sphereRef = useRef<THREE.Mesh>(null);
   const isActive = activeProjectId === project.id;
   
-  // Use mobile or desktop position based on screen size
   const position = isMobile ? project.mobilePosition : project.position;
   
   useEffect(() => {
-    // Entry animation - start from above and animate down
     if (portalRef.current) {
       portalRef.current.position.y = 10;
       gsap.to(portalRef.current.position, {
@@ -101,19 +99,12 @@ const ProjectPortal = ({
     if (sphereRef.current) {
       sphereRef.current.rotation.y = clock.getElapsedTime() * 0.2;
       
-      if (isActive) {
-        sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
-          sphereRef.current.scale.x,
-          1.3,
-          0.1
-        ));
-      } else {
-        sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
-          sphereRef.current.scale.x,
-          1,
-          0.1
-        ));
-      }
+      const targetScale = isActive ? 1.3 : 1;
+      sphereRef.current.scale.setScalar(THREE.MathUtils.lerp(
+        sphereRef.current.scale.x,
+        targetScale,
+        0.1
+      ));
     }
   });
   
@@ -203,7 +194,16 @@ const ProjectPortals = () => {
   };
   
   return (
-    <group onClick={handleBackgroundClick}>
+    <group>
+      {/* Invisible fullscreen plane behind all portals to catch clicks outside */}
+      <mesh
+        position={[0, 0, -10]} // place behind portals
+        onClick={handleBackgroundClick}
+      >
+        <planeGeometry args={[100, 100]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+      
       <Text
         position={[0, 3.5, -5]} 
         fontSize={isMobile ? 1.0 : 1.4} 

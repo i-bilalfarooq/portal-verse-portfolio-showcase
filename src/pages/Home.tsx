@@ -62,7 +62,7 @@ const Home = () => {
             cameraRef.current.lookAt(0, 0, 0);
             
             gsap.to(cameraRef.current.position, {
-              y: isMobile ? 3 : 0,
+              y: isMobile ? 0 : 0,
               z: isMobile ? 8 : 5,
               duration: 2,
               ease: "power2.inOut",
@@ -122,8 +122,8 @@ const Home = () => {
       {showNavigation && (
         <>
           {!isMobile && (
-            <nav className="fixed top-4 left-0 w-full z-10 flex justify-center animate-fade-in">
-              <div className="flex space-x-8 bg-black/70 backdrop-blur-md px-6 py-3 rounded-full shadow-[0_0_10px_#00FEFE] border border-[#00FEFE]/30">
+            <nav className="fixed top-10 left-0 w-full z-10 flex justify-center animate-fade-in">
+              <div className="flex space-x-10 bg-black/70 backdrop-blur-md px-10 py-5 rounded-full shadow-[0_0_10px_#00FEFE] border border-[#00FEFE]/30">
                 <button className="text-[#00FEFE] hover:text-[#FF00FF] transition-all text-base relative group">
                   HOME
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#00FEFE] transform scale-x-100 origin-left transition-transform duration-300"></span>
@@ -132,7 +132,7 @@ const Home = () => {
                   className="text-white hover:text-[#00FEFE] transition-all text-base relative group" 
                   onClick={() => navigate('/work')}
                 >
-                  WORK
+                  PROJECTS
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#00FEFE] transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
                 </button>
                 <button 

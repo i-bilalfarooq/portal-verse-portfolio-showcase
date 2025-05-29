@@ -20,7 +20,7 @@ const projects: Project[] = [
     title: 'HTMLLab',
     description: 'An AI-Based HTML and CSS Generator that reduces development time by 40% through AI-powered code generation.',
     technologies: ['AI', 'React', 'Node.js', 'OpenAI API'],
-    image: '/placeholder.svg',
+    image: '/HTMLLAB.png',
     link: 'https://htmllab.run.place/'
   },
   {
@@ -28,7 +28,7 @@ const projects: Project[] = [
     title: 'Waqt',
     description: 'An E-Commerce Website built for a watch brand, featuring modern design and seamless shopping experience.',
     technologies: ['React', 'Node.js', 'MongoDB', 'Stripe API'],
-    image: '/placeholder.svg',
+    image: '/WAQT.png',
     link: 'https://waqt.publicvm.com/'
   },
   {
@@ -36,7 +36,7 @@ const projects: Project[] = [
     title: 'DataSouk',
     description: 'A Blockchain-Based B2B Data Sharing Platform where data is encrypted using Kyber and Dilithium for post-quantum security.',
     technologies: ['Blockchain', 'React', 'Node.js', 'Kyber', 'Dilithium'],
-    image: '/placeholder.svg',
+    image: '/DATASOUQ.png',
     link: 'https://datasouk.great-site.net/?i=1'
   },
   {
@@ -44,7 +44,7 @@ const projects: Project[] = [
     title: 'MindfulAI',
     description: 'An AI-Powered Mental Health Platform providing personalized support and resources for mental wellbeing.',
     technologies: ['AI', 'React', 'Node.js', 'Machine Learning', 'NLP'],
-    image: '/placeholder.svg',
+    image: '/MindfulAI.png',
     link: 'https://mindfulai.infy.uk/?i=1'
   }
 ];
