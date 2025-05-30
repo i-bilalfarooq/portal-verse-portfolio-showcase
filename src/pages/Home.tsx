@@ -26,10 +26,23 @@ const Home = () => {
   const isMobile = useIsMobile();
   
   useEffect(() => {
-    // Reset gate state on page refresh
-    if (location.key === 'default') {
+    // Only reset gate state on page refresh of home route
+    if (location.key === 'default' && location.pathname === '/') {
       setGateOpened(false);
       setShowNavigation(false);
+    } else {
+      // If coming from another route, show the lobby directly
+      setGateOpened(true);
+      setShowNavigation(true);
+      
+      if (cameraRef.current) {
+        cameraRef.current.position.set(0, isMobile ? 0 : 0, isMobile ? 8 : 5);
+        cameraRef.current.lookAt(0, 0, 0);
+      }
+      
+      if (controlsRef.current) {
+        controlsRef.current.enabled = true;
+      }
     }
     
     document.body.style.overflow = 'hidden';
@@ -42,7 +55,7 @@ const Home = () => {
       clearTimeout(timer);
       document.body.style.overflow = '';
     };
-  }, [location.key]);
+  }, [location.key, location.pathname, isMobile]);
   
   const handleOpenGate = () => {
     if (controlsRef.current) {
