@@ -22,8 +22,8 @@ const projects: ProjectData[] = [
     title: 'HTMLLab',
     description: 'AI-Based HTML and CSS Generator',
     color: '#4285F4', // Google blue
-    position: [-3, 0, 0],
-    mobilePosition: [-2.2, 0, 0],
+    position: [-3, 0.3, 0],
+    mobilePosition: [-3, 0.3, 0],
     image: '/HTMLLAB.png',
     link: 'https://htmllab.run.place/'
   },
@@ -32,8 +32,8 @@ const projects: ProjectData[] = [
     title: 'Waqt',
     description: 'E-Commerce Website for a watch brand',
     color: '#FBBC04', // Google yellow
-    position: [-1.2, 0, -2],
-    mobilePosition: [-0.7, 0, -2.2],
+    position: [-1.2, 0.3, -2],
+    mobilePosition: [-1.2, 0.3, -2],
     image: '/WAQT.png',
     link: 'https://waqt.publicvm.com/'
   },
@@ -42,8 +42,8 @@ const projects: ProjectData[] = [
     title: 'DataSouk',
     description: 'Blockchain-Based B2B Data Sharing Platform',
     color: '#34A853', // Google green
-    position: [1.2, 0, -2],
-    mobilePosition: [0.7, 0, -2.2],
+    position: [1.2, 0.3, -2],
+    mobilePosition: [1.2, 0.3, -2],
     image: '/DATASOUQ.png',
     link: 'https://datasouk.great-site.net/?i=1'
   },
@@ -52,8 +52,8 @@ const projects: ProjectData[] = [
     title: 'MindfulAI',
     description: 'AI-Powered Mental Health Platform',
     color: '#EA4335', // Google red
-    position: [3, 0, 0],
-    mobilePosition: [2.2, 0, 0],
+    position: [3, 0.3, 0],
+    mobilePosition: [3, 0.3, 0],
     image: '/MindfulAI.png',
     link: 'https://mindfulai.infy.uk/?i=1'
   }
@@ -108,8 +108,8 @@ const ProjectPortal = ({
     }
   });
   
-  const sphereSize = isMobile ? 0.6 : 0.8;
-  const fontSize = isMobile ? 0.15 : 0.2;
+  const sphereSize = isMobile ? 0.8 : 0.8;
+  const fontSize = isMobile ? 0.25 : 0.2;
   
   return (
     <group

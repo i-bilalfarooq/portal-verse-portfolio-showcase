@@ -36,7 +36,7 @@ const Home = () => {
       setShowNavigation(true);
       
       if (cameraRef.current) {
-        cameraRef.current.position.set(0, isMobile ? 0 : 0, isMobile ? 8 : 5);
+        cameraRef.current.position.set(0, isMobile ? 0 : 0, isMobile ? 9 : 5);
         cameraRef.current.lookAt(0, 0, 0);
       }
       
