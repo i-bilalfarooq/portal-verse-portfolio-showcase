@@ -175,7 +175,7 @@ const Home = () => {
 
           {isMobile && (
             <button 
-              className="fixed top-6 right-6 z-20 bg-black/70 backdrop-blur-md p-3 rounded-full shadow-[0_0_10px_#00FEFE] border border-[#00FEFE]/30 text-[#00FEFE] hover:text-[#FF00FF] transition-all animate-fade-in"
+              className="fixed top-6 right-6 z-50 bg-black/70 backdrop-blur-md p-3 rounded-full shadow-[0_0_10px_#00FEFE] border border-[#00FEFE]/30 text-[#00FEFE] hover:text-[#FF00FF] transition-all animate-fade-in"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -183,7 +183,7 @@ const Home = () => {
           )}
 
           {isMobile && mobileMenuOpen && (
-            <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-15 flex flex-col items-center justify-center animate-fade-in">
+            <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-45 flex flex-col items-center justify-center animate-fade-in">
               <div className="flex flex-col space-y-8 text-center">
                 <button 
                   className="text-[#00FEFE] hover:text-[#FF00FF] transition-all text-2xl font-bold"

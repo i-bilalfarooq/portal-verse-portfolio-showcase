@@ -95,7 +95,7 @@ const Work = () => {
       
       {activeProject && (
         <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-4"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-40 p-3 md:p-4"
           onClick={() => setActiveProject(null)}
         >
           <Card 
