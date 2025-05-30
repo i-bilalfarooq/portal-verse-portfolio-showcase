@@ -36,7 +36,7 @@ const Home = () => {
       setShowNavigation(true);
       
       if (cameraRef.current) {
-        cameraRef.current.position.set(0, isMobile ? 0 : 0, isMobile ? 9 : 5);
+        cameraRef.current.position.set(0, isMobile ? 0 : 0, isMobile ? 10 : 5);
         cameraRef.current.lookAt(0, 0, 0);
       }
       
@@ -76,7 +76,7 @@ const Home = () => {
             
             gsap.to(cameraRef.current.position, {
               y: isMobile ? 0 : 0,
-              z: isMobile ? 8 : 5,
+              z: isMobile ? 10 : 5,
               duration: 2,
               ease: "power2.inOut",
               onComplete: () => {
